@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "PlacementHub Cross-Platform Auto-Sync Engine",
+  "version": "1.0.0",
+  "description": "Silently catches successful LeetCode & Codeforces submissions and auto-pushes code to your PlacementHub GitHub pipeline.",
+  "permissions": [
+    "storage",
+    "webRequest",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://codeforces.com/*",
+    "http://localhost:3001/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://codeforces.com/problemset/problem/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PlacementHub Sync"
+  }
+}
