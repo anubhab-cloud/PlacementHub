@@ -19,23 +19,23 @@ PlacementHub follows a modular, decoupled micro-architecture combining a Next.js
 ```mermaid
 graph TD
     subgraph Client Layer
-        UI[Next.js App UI / Monaco Editor]
-        Ext[Manifest V3 Browser Extension]
-        Port[3D Recruiter Portfolio /student/:username]
+        UI["Next.js App UI / Monaco Editor"]
+        Ext["Manifest V3 Browser Extension"]
+        Port["3D Recruiter Portfolio /student/:username"]
     end
 
     subgraph PlacementHub Serverless Backend
-        API_Compile[/api/compile Engine]
-        API_AI[/api/ai/insights & /api/ai/chat]
-        API_GH[/api/github/push]
-        API_Stats[/api/stats]
+        API_Compile["/api/compile Engine"]
+        API_AI["/api/ai/insights & /api/ai/chat"]
+        API_GH["/api/github/push"]
+        API_Stats["/api/stats Engine"]
     end
 
-    subgraph Third-Party External Engine
-        J0[Judge0 API Compiler Sandbox]
-        Gemini[Google Gemini 1.5 Flash LLM]
-        GH_REST[GitHub REST API / Octokit]
-        Supabase[(Supabase PostgreSQL)]
+    subgraph Third-Party External Services
+        J0["Judge0 API Compiler Sandbox"]
+        Gemini["Google Gemini 1.5 Flash LLM"]
+        GH_REST["GitHub REST API / Octokit"]
+        Supabase[("Supabase PostgreSQL DB")]
     end
 
     UI -->|Run Code Request| API_Compile
@@ -43,8 +43,8 @@ graph TD
     UI -->|Submit Solution| API_GH
     Ext -->|Catch Accepted Soln Webhook| API_GH
 
-    API_Compile -->|C++ / Java / Python / SQL| J0
-    API_AI -->|Student Telemetry Instruction| Gemini
+    API_Compile -->|Compile Request| J0
+    API_AI -->|Student Telemetry Prompt| Gemini
     API_GH -->|Commit File with Topic Hierarchy| GH_REST
     API_Stats <-->|Persist Telemetry| Supabase
 ```
