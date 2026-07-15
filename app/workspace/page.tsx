@@ -260,7 +260,7 @@ export default function WorkspacePage() {
                   }}>
                     <div><span style={{ color: 'var(--text-3)' }}>Input:  </span><span style={{ color: 'var(--cyan)' }}>{ex.input}</span></div>
                     <div><span style={{ color: 'var(--text-3)' }}>Output: </span><span style={{ color: 'var(--green)' }}>{ex.output}</span></div>
-                    {ex.explain && <div style={{ color: 'var(--text-3)', marginTop: '4px', fontSize: '11px' }}>// {ex.explain}</div>}
+                    {ex.explain && <div style={{ color: 'var(--text-3)', marginTop: '4px', fontSize: '11px' }}>{`// ${ex.explain}`}</div>}
                   </div>
                 </div>
               ))}

@@ -139,8 +139,8 @@ export default function PublicPortfolioPage({ params }: { params: { username: st
             <div style={{
               width: '80px', height: '80px', borderRadius: '50%',
               background: `linear-gradient(135deg, ${current.accent}, #7c3aed)`,
-              display: 'flex', alignItems: 'center', justifyCenter: 'center',
-              fontSize: '28px', fontWeight: 800, color: '#white',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '28px', fontWeight: 800, color: 'white',
               boxShadow: `0 0 30px ${current.accent}50`,
               flexShrink: 0,
             }}>
