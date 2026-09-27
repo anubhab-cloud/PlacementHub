@@ -69,8 +69,10 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with this ex
       throw lastError || new Error('All Gemini models failed');
     }
 
-    const clean = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-    const parsed = JSON.parse(clean);
+    // Extract JSON object safely even if model includes markdown fences or commentary
+    const match = text.match(/\{[\s\S]*\}/);
+    const jsonStr = match ? match[0] : text;
+    const parsed = JSON.parse(jsonStr);
 
     return NextResponse.json({ ...parsed, demo: false });
 
