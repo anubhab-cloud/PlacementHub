@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 const diffs = [
-  { label: 'Easy',   solved: 90,  total: 100, color: '#00e5a0' },
-  { label: 'Medium', solved: 110, total: 140, color: '#ffb347' },
-  { label: 'Hard',   solved: 45,  total: 60,  color: '#ff4d6d' },
+  { label: 'Easy',   solved: 90,  total: 100, color: '#3ecf8e' },
+  { label: 'Medium', solved: 110, total: 140, color: '#f0a500' },
+  { label: 'Hard',   solved: 45,  total: 60,  color: '#f04438' },
 ];
 
 function DonutChart() {
@@ -44,9 +44,9 @@ function DonutChart() {
 
       // Segments
       const segs = [
-        { pct: 90 / total, color: '#00e5a0', glow: 'rgba(0,229,160,0.6)' },
-        { pct: 110 / total, color: '#ffb347', glow: 'rgba(255,179,71,0.5)' },
-        { pct: 45 / total, color: '#ff4d6d', glow: 'rgba(255,77,109,0.5)' },
+        { pct: 90 / total, color: '#3ecf8e', glow: 'rgba(62,207,142,0.4)' },
+        { pct: 110 / total, color: '#f0a500', glow: 'rgba(240,165,0,0.35)' },
+        { pct: 45 / total, color: '#f04438', glow: 'rgba(240,68,56,0.35)' },
       ];
       const gap = 0.05;
       let angle = -Math.PI / 2;
@@ -86,7 +86,8 @@ export default function PrepSummaryWidget() {
     <div className="card prep-widget">
       <div className="card-header">
         <span className="card-label">
-          <span className="lbl-icon">📊</span> Prep Summary
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Prep Summary
         </span>
         <button className="card-menu" id="btn-prep-menu">···</button>
       </div>
@@ -107,12 +108,9 @@ export default function PrepSummaryWidget() {
             ))}
 
             <div className="prep-pills">
-              <span className="pill pill-green">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                GitHub ✓
-              </span>
+              <span className="pill pill-green">GitHub ✓</span>
               <span className="pill pill-amber">🔥 21 Days</span>
-              <span className="pill pill-violet">⬆ 85 Pushes</span>
+              <span className="pill pill-violet">↑ 85 Pushes</span>
             </div>
           </div>
         </div>
