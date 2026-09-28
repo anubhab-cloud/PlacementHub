@@ -7,6 +7,7 @@ import UpcomingEventsWidget from '@/components/widgets/UpcomingEventsWidget';
 import PortfolioPreviewWidget from '@/components/widgets/PortfolioPreviewWidget';
 import RecentVideosWidget from '@/components/widgets/RecentVideosWidget';
 import GitHubSyncBanner from '@/components/widgets/GitHubSyncBanner';
+import ContributionGraphWidget from '@/components/widgets/ContributionGraphWidget';
 
 export default function DashboardPage() {
   const [greeting, setGreeting] = useState('Good morning');
@@ -55,6 +56,7 @@ export default function DashboardPage() {
         <UpcomingEventsWidget />
         <PortfolioPreviewWidget />
         <RecentVideosWidget />
+        <ContributionGraphWidget />
       </div>
     </div>
   );
