@@ -7,10 +7,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'i.ytimg.com' },
     ],
   },
-  webpack: (config) => {
-    // Handle Three.js and Monaco Editor properly
-    config.externals = [...(config.externals || [])];
-    return config;
+  // ── Next.js 16: Turbopack is the default bundler ──────────────
+  // turbopack.root fixes the "package-lock.json outside git repo" warning
+  // that occurs when the project lives inside OneDrive.
+  turbopack: {
+    root: __dirname,
   },
 };
 
