@@ -18,6 +18,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
+        {/* ── Suppress browser-extension errors from crashing the dev overlay ── */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var EXTENSION_PREFIXES = ['chrome-extension://', 'moz-extension://', 'safari-extension://'];
+            function isExtensionError(filename) {
+              if (!filename) return false;
+              return EXTENSION_PREFIXES.some(function(p) { return filename.startsWith(p); });
+            }
+            window.addEventListener('error', function(e) {
+              if (isExtensionError(e.filename)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+            }, true);
+            window.addEventListener('unhandledrejection', function(e) {
+              var stack = e.reason && e.reason.stack;
+              if (stack && EXTENSION_PREFIXES.some(function(p) { return stack.includes(p); })) {
+                e.preventDefault(); e.stopImmediatePropagation(); return false;
+              }
+            }, true);
+          })();
+        `}} />
       </head>
       <body>
         <div className="app-shell">
@@ -33,3 +52,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
