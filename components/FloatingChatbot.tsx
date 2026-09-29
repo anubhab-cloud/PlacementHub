@@ -11,8 +11,8 @@ interface Message {
 
 const QUICK_PROMPTS = [
   '🎯 What should I study today?',
+  '😴 Tired after coding? Study break tip',
   '💡 Explain Graph BFS vs DFS',
-  '📊 How is my DSA streak?',
   '⚡ Quick mock interview tip',
 ];
 
@@ -22,7 +22,7 @@ export default function FloatingChatbot() {
     {
       id: '1',
       sender: 'agent',
-      text: 'Hey Anubhab! 👋 I\'m your **PlacementHub AI Agent**. Ask me anything about your DSA prep, resume tips, or mock interview strategies!',
+      text: 'Hey Anubhab! 👋 I\'m your **PlacementHub AI Buddy**! Don\'t fall asleep on your keyboard like me — ask me anything about DSA, resume tips, or mock interviews!',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -145,15 +145,13 @@ export default function FloatingChatbot() {
           {/* Header */}
           <div className="chatbot-header">
             <div className="chatbot-header-info">
-              <div className="chatbot-avatar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
-                </svg>
+              <div className="chatbot-avatar-img-wrap">
+                <img src="/chatbot-avatar.png" alt="AI Mascot" className="chatbot-header-avatar-img" />
                 <span className="chatbot-status-dot" />
               </div>
               <div>
-                <div className="chatbot-title">PlacementHub Agent</div>
-                <div className="chatbot-subtitle">Personal AI Coach • Gemini 1.5</div>
+                <div className="chatbot-title">PlacementHub AI Buddy</div>
+                <div className="chatbot-subtitle">Personal Prep Coach • Gemini 1.5</div>
               </div>
             </div>
 
@@ -200,7 +198,9 @@ export default function FloatingChatbot() {
                 className={`chatbot-msg-row ${msg.sender === 'user' ? 'user-row' : 'agent-row'}`}
               >
                 {msg.sender === 'agent' && (
-                  <div className="chatbot-msg-avatar">AI</div>
+                  <div className="chatbot-msg-avatar-img-wrap">
+                    <img src="/chatbot-avatar.png" alt="AI Avatar" className="chatbot-msg-avatar-img" />
+                  </div>
                 )}
                 <div className="chatbot-msg-bubble">
                   <div className="chatbot-msg-content">{formatText(msg.text)}</div>
@@ -211,7 +211,9 @@ export default function FloatingChatbot() {
 
             {isTyping && (
               <div className="chatbot-msg-row agent-row">
-                <div className="chatbot-msg-avatar">AI</div>
+                <div className="chatbot-msg-avatar-img-wrap">
+                  <img src="/chatbot-avatar.png" alt="AI Avatar" className="chatbot-msg-avatar-img" />
+                </div>
                 <div className="chatbot-msg-bubble typing-bubble">
                   <span className="dot" />
                   <span className="dot" />
@@ -253,9 +255,7 @@ export default function FloatingChatbot() {
       >
         {!isOpen ? (
           <>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
+            <img src="/chatbot-avatar.png" alt="AI Mascot" className="chatbot-trigger-avatar-img" />
             <span className="trigger-pulse-glow" />
             {unreadCount > 0 && <span className="trigger-badge">{unreadCount}</span>}
           </>
