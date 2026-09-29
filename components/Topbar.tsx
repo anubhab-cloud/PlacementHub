@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 const pageTitles: Record<string, { title: string; meta: string }> = {
-  '/':           { title: 'Dashboard',      meta: '6 widgets · Updated just now' },
-  '/workspace':  { title: 'Code Workspace', meta: '3 active problems' },
-  '/uni-hub':    { title: 'Uni Hub',        meta: 'Resources & notes' },
-  '/placement':  { title: 'Placement',      meta: 'Application tracker' },
-  '/portfolio':  { title: 'My Portfolio',   meta: 'Live · anubhab.dev' },
-  '/settings':   { title: 'Settings',       meta: 'Account & preferences' },
-  '/ai':         { title: 'AI Assistant',   meta: 'Gemini 1.5 Flash' },
+  '/':          { title: 'Dashboard',       meta: '6 widgets · Updated just now' },
+  '/workspace': { title: 'Code Workspace',  meta: '3 active problems' },
+  '/uni-hub':   { title: 'Uni Hub',         meta: 'Resources & notes' },
+  '/placement': { title: 'Placement',       meta: 'Application tracker' },
+  '/portfolio': { title: 'My Portfolio',    meta: 'Live · anubhab.dev' },
+  '/settings':  { title: 'Settings',        meta: 'Account & preferences' },
+  '/ai':        { title: 'AI Assistant',    meta: 'Gemini 1.5 Flash' },
+  '/library':   { title: 'Digital Library', meta: '4 active rooms · Study together' },
 };
 
 export default function Topbar() {

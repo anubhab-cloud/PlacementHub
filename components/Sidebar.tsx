@@ -43,6 +43,13 @@ const Icons = {
       <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
     </svg>
   ),
+  Library: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      <line x1="10" y1="7" x2="16" y2="7"/><line x1="10" y1="11" x2="16" y2="11"/><line x1="10" y1="15" x2="14" y2="15"/>
+    </svg>
+  ),
 };
 
 const navItems = [
@@ -51,6 +58,7 @@ const navItems = [
   { icon: Icons.UniHub,    label: 'Uni Hub',        href: '/uni-hub' },
   { icon: Icons.Placement, label: 'Placement',      href: '/placement' },
   { icon: Icons.Portfolio, label: 'Portfolio',      href: '/portfolio' },
+  { icon: Icons.Library,   label: 'Library',        href: '/library',  badge: '●' },
 ];
 
 const footerItems = [
