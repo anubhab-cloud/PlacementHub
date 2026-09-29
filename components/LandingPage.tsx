@@ -11,7 +11,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="landing-container">
+    <div className="landing-container" suppressHydrationWarning>
       {/* ── Top Header Bar ────────────────────────────────────────────── */}
       <header className="landing-header">
         <div className="landing-brand">
