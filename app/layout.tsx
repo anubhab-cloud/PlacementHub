@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Sidebar from '@/components/Sidebar';
 import Topbar from '@/components/Topbar';
+import FloatingChatbot from '@/components/FloatingChatbot';
 
 export const metadata: Metadata = {
   title: 'PlacementHub — Your All-in-One Prep Platform',
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </div>
         </div>
+        <FloatingChatbot />
       </body>
     </html>
   );
