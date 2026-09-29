@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 /* SVG icons instead of emoji for a cleaner look */
 const Icons = {
@@ -68,6 +69,7 @@ const footerItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   return (
     <aside className="sidebar">
@@ -113,9 +115,9 @@ export default function Sidebar() {
 
         {/* User card */}
         <div className="sidebar-user">
-          <div className="sidebar-user-avatar">AC</div>
+          <div className="sidebar-user-avatar">{user?.avatar || 'AC'}</div>
           <div className="sidebar-user-info">
-            <div className="sidebar-user-name">Anubhab C.</div>
+            <div className="sidebar-user-name">{user?.name || 'Anubhab C.'}</div>
             <div className="sidebar-user-status">● online</div>
           </div>
         </div>

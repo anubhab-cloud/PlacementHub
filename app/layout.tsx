@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Sidebar from '@/components/Sidebar';
-import Topbar from '@/components/Topbar';
-import FloatingChatbot from '@/components/FloatingChatbot';
+import { AuthProvider } from '@/context/AuthContext';
+import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'PlacementHub — Your All-in-One Prep Platform',
@@ -40,16 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         `}} />
       </head>
       <body>
-        <div className="app-shell">
-          <Sidebar />
-          <div className="main-content">
-            <Topbar />
-            <main className="page-content">
-              {children}
-            </main>
-          </div>
-        </div>
-        <FloatingChatbot />
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

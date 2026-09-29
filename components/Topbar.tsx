@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const pageTitles: Record<string, { title: string; meta: string }> = {
   '/':          { title: 'Dashboard',       meta: '6 widgets · Updated just now' },
@@ -15,7 +16,10 @@ const pageTitles: Record<string, { title: string; meta: string }> = {
 
 export default function Topbar() {
   const [query, setQuery] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
   const pathname = usePathname();
+  const { user, isLoggedIn, logout, openLoginModal } = useAuth();
+
   const page = pageTitles[pathname] ?? { title: 'PlacementHub', meta: '' };
 
   return (
@@ -70,16 +74,52 @@ export default function Topbar() {
           <span className="notification-dot" />
         </button>
 
-        <div className="topbar-user" id="topbar-user-menu">
-          <div className="user-avatar">AC</div>
-          <div className="user-info">
-            <div className="user-name">Anubhab C.</div>
+        {isLoggedIn && user ? (
+          <div className="user-dropdown-container" style={{ position: 'relative' }}>
+            <div
+              className="topbar-user"
+              id="topbar-user-menu"
+              onClick={() => setShowMenu(!showMenu)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="user-avatar">{user.avatar}</div>
+              <div className="user-info">
+                <div className="user-name">{user.name}</div>
+              </div>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '2px' }}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+
+            {showMenu && (
+              <div className="topbar-user-dropdown">
+                <div className="dropdown-user-header">
+                  <div className="dropdown-user-name">{user.name}</div>
+                  <div className="dropdown-user-email">{user.email}</div>
+                </div>
+                <div className="dropdown-divider" />
+                <button
+                  className="dropdown-item danger"
+                  onClick={() => {
+                    setShowMenu(false);
+                    logout();
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Log Out
+                </button>
+              </div>
+            )}
           </div>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '2px' }}>
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
+        ) : (
+          <button className="btn btn-violet btn-sm" onClick={() => openLoginModal('login')}>
+            Log In
+          </button>
+        )}
       </div>
     </header>
   );
 }
+
