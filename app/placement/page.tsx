@@ -39,7 +39,7 @@ const COMPANY_TRACKS = [
     name: 'TCS Digital / Prime',
     logo: '🏢',
     difficulty: 'Medium',
-    color: '#00e5a0',
+    color: '#10B981',
     rounds: ['NQT Aptitude & Coding Test', 'Technical Interview', 'HR & Managerial Round'],
     focusTopics: ['Quantitative Aptitude & Reasoning', 'C++ / Java Core OOP', 'Basic Data Structures', 'SQL Queries'],
     readiness: 91,
@@ -70,7 +70,7 @@ const CS_SUBJECTS: SubjectItem[] = [
     code: 'CS501',
     qCount: 120,
     doneCount: 88,
-    color: 'var(--cyan)',
+    color: '#38BDF8',
     cheatSheet: {
       summary: 'Manages computer hardware, processes, memory allocation, storage, and synchronization.',
       keyConcepts: [
@@ -92,7 +92,7 @@ const CS_SUBJECTS: SubjectItem[] = [
     code: 'CS502',
     qCount: 95,
     doneCount: 74,
-    color: 'var(--violet-bright)',
+    color: '#A78BFA',
     cheatSheet: {
       summary: 'Data models, relational algebra, SQL optimization, ACID guarantees, and database indexing.',
       keyConcepts: [
@@ -113,7 +113,7 @@ const CS_SUBJECTS: SubjectItem[] = [
     code: 'CS601',
     qCount: 85,
     doneCount: 52,
-    color: 'var(--green)',
+    color: '#10B981',
     cheatSheet: {
       summary: 'Data communication, OSI 7-layer architecture, TCP/IP protocols, routing algorithms, and sockets.',
       keyConcepts: [
@@ -134,7 +134,7 @@ const CS_SUBJECTS: SubjectItem[] = [
     code: 'CS402',
     qCount: 70,
     doneCount: 65,
-    color: 'var(--amber)',
+    color: '#F59E0B',
     cheatSheet: {
       summary: 'Object-Oriented Programming paradigms: Encapsulation, Abstraction, Inheritance, and Polymorphism.',
       keyConcepts: [
@@ -154,7 +154,7 @@ const CS_SUBJECTS: SubjectItem[] = [
     code: 'CS701',
     qCount: 45,
     doneCount: 22,
-    color: '#ff4d6d',
+    color: '#EF4444',
     cheatSheet: {
       summary: 'Scalability patterns, load balancing, caching strategies, rate limiting, and microservices.',
       keyConcepts: [
@@ -174,7 +174,7 @@ const CS_SUBJECTS: SubjectItem[] = [
     code: 'APT101',
     qCount: 110,
     doneCount: 92,
-    color: '#00d4ff',
+    color: '#06B6D4',
     cheatSheet: {
       summary: 'Quantitative aptitude, logical reasoning, data interpretation, and speed math shortcuts.',
       keyConcepts: [
@@ -257,33 +257,35 @@ const QUIZ_QUESTIONS = [
 /* ── REVISION CHEAT SHEET MODAL ───────────────────────────────────────────── */
 function CheatSheetModal({ subject, onClose }: { subject: SubjectItem; onClose: () => void }) {
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-box" style={{ width: '640px', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="modal-header">
+    <div className="modal-overlay" style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+    }}>
+      <div className="dashboard-widget-card" style={{ width: '600px', maxHeight: '85vh', background: '#12131A', border: '1px solid rgba(255,255,255,0.1)', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '24px' }}>{subject.icon}</span>
             <div>
-              <span className="modal-title" style={{ fontSize: '17px' }}>{subject.name} — Cheat Sheet</span>
-              <div style={{ fontSize: '10px', color: 'var(--text-3)' }}>Code: {subject.code} · Essential Interview Revision</div>
+              <span className="widget-title" style={{ fontSize: '16px' }}>{subject.name} — Cheat Sheet</span>
+              <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Code: {subject.code} · Essential Interview Revision</div>
             </div>
           </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="warmup-btn-dark" onClick={onClose} style={{ padding: '2px 8px' }}>✕</button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {/* Summary Box */}
-          <div style={{ background: 'var(--black-3)', padding: '12px 16px', borderRadius: 'var(--r-md)', borderLeft: `3px solid ${subject.color}` }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-2)', lineHeight: 1.6 }}>{subject.cheatSheet.summary}</div>
+          <div style={{ background: '#1A1C28', padding: '12px 14px', borderRadius: '8px', borderLeft: `3px solid ${subject.color}` }}>
+            <div style={{ fontSize: '12px', color: '#D1D5DB', lineHeight: 1.6 }}>{subject.cheatSheet.summary}</div>
           </div>
 
           {/* Key Concepts */}
           <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-1)', marginBottom: '10px' }}>⚡ Core Principles & Architecture</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>⚡ Core Principles</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {subject.cheatSheet.keyConcepts.map((kc, i) => (
-                <div key={i} style={{ background: 'var(--black-2)', padding: '12px 14px', borderRadius: 'var(--r-md)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div key={i} style={{ background: '#1A1C28', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ fontSize: '12px', fontWeight: 700, color: subject.color, marginBottom: '4px' }}>{i + 1}. {kc.title}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-2)', lineHeight: 1.5 }}>{kc.desc}</div>
+                  <div style={{ fontSize: '11px', color: '#9CA3AF', lineHeight: 1.5 }}>{kc.desc}</div>
                 </div>
               ))}
             </div>
@@ -291,20 +293,20 @@ function CheatSheetModal({ subject, onClose }: { subject: SubjectItem; onClose: 
 
           {/* Top Interview Q&As */}
           <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-1)', marginBottom: '10px' }}>🎯 Frequently Asked Interview Questions</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>🎯 Top Interview Questions</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {subject.cheatSheet.topQuestions.map((tq, i) => (
-                <div key={i} style={{ background: 'rgba(124,58,237,0.06)', padding: '12px 14px', borderRadius: 'var(--r-md)', border: '1px solid rgba(124,58,237,0.2)' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-1)', marginBottom: '4px' }}>Q: {tq.q}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--green)', lineHeight: 1.5 }}>A: {tq.a}</div>
+                <div key={i} style={{ background: 'rgba(124,58,237,0.08)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(124,58,237,0.2)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>Q: {tq.q}</div>
+                  <div style={{ fontSize: '11px', color: '#10B981', lineHeight: 1.5 }}>A: {tq.a}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn btn-violet btn-sm" onClick={onClose}>Done Revising ✓</button>
+        <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end' }}>
+          <button className="warmup-btn-purple" onClick={onClose}>Done Revising ✓</button>
         </div>
       </div>
     </div>
@@ -315,7 +317,7 @@ function CheatSheetModal({ subject, onClose }: { subject: SubjectItem; onClose: 
 function PlacementQuizModal({ onClose }: { onClose: () => void }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers]       = useState<Record<number, number>>({});
-  const [timeLeft, setTimeLeft]     = useState(180); // 3 minutes
+  const [timeLeft, setTimeLeft]     = useState(180);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
@@ -357,41 +359,42 @@ function PlacementQuizModal({ onClose }: { onClose: () => void }) {
 
   const finishAssessment = async () => {
     setIsSubmitted(true);
-    // Send score update to backend stats API
     try {
       await fetch('/api/stats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'quiz_completed', score, total: QUIZ_QUESTIONS.length }),
       });
-    } catch { /* fallback */ }
+    } catch {}
   };
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-box" style={{ width: '580px' }}>
-        <div className="modal-header">
-          <span className="modal-title">⏱ CS Placement Mock Assessment</span>
-          <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="modal-overlay" style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+    }}>
+      <div className="dashboard-widget-card" style={{ width: '560px', background: '#12131A', border: '1px solid rgba(255,255,255,0.1)', padding: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <span className="widget-title" style={{ fontSize: '16px' }}>⏱ CS Placement Mock Assessment</span>
+          <button className="warmup-btn-dark" onClick={onClose} style={{ padding: '2px 8px' }}>✕</button>
         </div>
 
         {!isSubmitted ? (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: 'var(--black-3)', padding: '8px 14px', borderRadius: '100px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--violet-bright)', fontWeight: 700 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', background: '#1A1C28', padding: '8px 14px', borderRadius: '20px' }}>
+              <span style={{ fontSize: '12px', color: '#A78BFA', fontWeight: 600 }}>
                 Question {currentIdx + 1} of {QUIZ_QUESTIONS.length}
               </span>
-              <span style={{ fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", color: timeLeft < 30 ? 'var(--red)' : 'var(--cyan)', fontWeight: 700 }}>
+              <span style={{ fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", color: timeLeft < 30 ? '#EF4444' : '#38BDF8', fontWeight: 700 }}>
                 ⏳ {formatTime(timeLeft)}
               </span>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <span className="pill pill-cyan" style={{ fontSize: '9px', marginBottom: '6px', display: 'inline-block' }}>{currentQ.subject}</span>
+            <div style={{ marginBottom: '14px' }}>
+              <span className="prep-tag-pill" style={{ marginBottom: '6px', display: 'inline-block' }}>{currentQ.subject}</span>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#fff', lineHeight: 1.5 }}>{currentQ.question}</h3>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
               {currentQ.options.map((opt, oIdx) => {
                 const selected = answers[currentIdx] === oIdx;
                 return (
@@ -399,14 +402,14 @@ function PlacementQuizModal({ onClose }: { onClose: () => void }) {
                     key={opt}
                     onClick={() => handleSelect(oIdx)}
                     style={{
-                      padding: '12px 16px',
-                      borderRadius: 'var(--r-md)',
+                      padding: '12px 14px',
+                      borderRadius: '8px',
                       textAlign: 'left',
                       fontSize: '12px',
                       cursor: 'pointer',
-                      background: selected ? 'var(--violet-soft)' : 'var(--black-3)',
-                      border: `1px solid ${selected ? 'var(--violet-bright)' : 'rgba(255,255,255,0.06)'}`,
-                      color: selected ? 'var(--violet-bright)' : 'var(--text-1)',
+                      background: selected ? 'rgba(124,58,237,0.2)' : '#1A1C28',
+                      border: `1px solid ${selected ? '#7C3AED' : 'rgba(255,255,255,0.06)'}`,
+                      color: selected ? '#A78BFA' : '#D1D5DB',
                       fontWeight: selected ? 600 : 400,
                       transition: 'all 0.15s ease',
                     }}
@@ -419,18 +422,18 @@ function PlacementQuizModal({ onClose }: { onClose: () => void }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
-                className="btn btn-ghost btn-sm"
+                className="warmup-btn-dark"
                 onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
                 disabled={currentIdx === 0}
               >
                 ← Prev
               </button>
               {currentIdx < QUIZ_QUESTIONS.length - 1 ? (
-                <button className="btn btn-violet btn-sm" onClick={() => setCurrentIdx(i => i + 1)}>
+                <button className="warmup-btn-purple" onClick={() => setCurrentIdx(i => i + 1)}>
                   Next →
                 </button>
               ) : (
-                <button className="btn btn-violet btn-sm" onClick={finishAssessment}>
+                <button className="warmup-btn-purple" onClick={finishAssessment}>
                   Submit Test ✓
                 </button>
               )}
@@ -439,28 +442,25 @@ function PlacementQuizModal({ onClose }: { onClose: () => void }) {
         ) : (
           <div style={{ textAlign: 'center', padding: '10px 0' }}>
             <div style={{ fontSize: '40px', marginBottom: '8px' }}>🎯</div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '6px' }}>Assessment Completed!</h2>
-            <p style={{ fontSize: '13px', color: 'var(--text-2)', marginBottom: '16px' }}>
-              You scored <span style={{ color: 'var(--green)', fontWeight: 700 }}>{score} / {QUIZ_QUESTIONS.length}</span> ({((score / QUIZ_QUESTIONS.length) * 100).toFixed(0)}%)
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Assessment Completed!</h2>
+            <p style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '16px' }}>
+              You scored <span style={{ color: '#10B981', fontWeight: 700 }}>{score} / {QUIZ_QUESTIONS.length}</span> ({((score / QUIZ_QUESTIONS.length) * 100).toFixed(0)}%)
             </p>
 
-            <div style={{ background: 'var(--black-3)', borderRadius: 'var(--r-md)', padding: '14px', textAlign: 'left', marginBottom: '16px', maxHeight: '240px', overflowY: 'auto' }}>
+            <div style={{ background: '#1A1C28', borderRadius: '8px', padding: '14px', textAlign: 'left', marginBottom: '16px', maxHeight: '220px', overflowY: 'auto' }}>
               {QUIZ_QUESTIONS.map((q, idx) => (
-                <div key={q.id} style={{ marginBottom: '12px', borderBottom: idx !== QUIZ_QUESTIONS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', paddingBottom: '8px' }}>
-                  <div style={{ fontSize: '11px', color: answers[idx] === q.correct ? 'var(--green)' : 'var(--red)', fontWeight: 700 }}>
+                <div key={q.id} style={{ marginBottom: '10px', borderBottom: idx !== QUIZ_QUESTIONS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', paddingBottom: '8px' }}>
+                  <div style={{ fontSize: '11px', color: answers[idx] === q.correct ? '#10B981' : '#EF4444', fontWeight: 700 }}>
                     {answers[idx] === q.correct ? '✓ Correct' : '✕ Incorrect'} — Q{idx + 1}: {q.question}
                   </div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-3)', marginTop: '3px' }}>
+                  <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
                     Correct: <strong style={{ color: '#fff' }}>{q.options[q.correct]}</strong>
-                  </div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-2)', marginTop: '2px', fontStyle: 'italic' }}>
-                    💡 {q.explanation}
                   </div>
                 </div>
               ))}
             </div>
 
-            <button className="btn btn-violet" onClick={onClose} style={{ width: '100%', justifyContent: 'center' }}>
+            <button className="warmup-btn-purple" onClick={onClose} style={{ width: '100%', justifyContent: 'center' }}>
               Close & Save Results
             </button>
           </div>
@@ -479,7 +479,6 @@ export default function PlacementPage() {
   const [showQuiz, setShowQuiz]             = useState(false);
   const [activeCheatSheet, setActiveCheatSheet] = useState<SubjectItem | null>(null);
 
-  // Filter flashcards by subject
   const filteredFlashcards = FLASHCARDS.filter(fc => {
     return activeSubjectFilter === 'All' || fc.subjectId === activeSubjectFilter;
   });
@@ -499,21 +498,23 @@ export default function PlacementPage() {
   const currentFlashcard = filteredFlashcards[cardIdx % (filteredFlashcards.length || 1)];
 
   return (
-    <div>
-      {/* ── Page Header ──────────────────────────────────────────── */}
-      <div className="page-header" style={{ flexWrap: 'wrap', gap: '16px' }}>
+    <div className="dashboard-container" style={{ paddingBottom: '30px' }}>
+      {/* ── Banner Hero Card ── */}
+      <div className="dashboard-hero-card" style={{ marginBottom: '20px' }}>
         <div>
-          <h1 className="page-title">💼 Placement Arena & Target Hub</h1>
-          <p className="page-subtitle">Company Interview Tracks · CS Core Revision · Timed Mock Assessments</p>
+          <h1 className="hero-title">💼 Placement Arena & Target Hub</h1>
+          <p className="hero-subtitle">Company Interview Tracks · CS Core Revision · Timed Mock Assessments</p>
         </div>
-        <button className="btn btn-violet" id="btn-start-quiz" onClick={() => setShowQuiz(true)}>
-          ⏱ Start Timed Placement Quiz
-        </button>
+        <div className="hero-actions">
+          <button className="btn-hero-purple" onClick={() => setShowQuiz(true)}>
+            ⏱ Start Timed Placement Quiz
+          </button>
+        </div>
       </div>
 
-      {/* ── Company Tracks Carousel / Selector ───────────────────── */}
+      {/* ── Company Tracks Carousel / Selector ── */}
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
+        <div style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
           🎯 Target Company Interview Tracks
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
@@ -524,9 +525,9 @@ export default function PlacementPage() {
                 key={track.id}
                 onClick={() => setSelectedTrack(track)}
                 style={{
-                  background: isSel ? 'var(--black-2)' : 'var(--black-3)',
+                  background: '#12131A',
                   border: `1px solid ${isSel ? track.color : 'rgba(255,255,255,0.06)'}`,
-                  borderRadius: 'var(--r-lg)', padding: '16px', cursor: 'pointer',
+                  borderRadius: '12px', padding: '16px', cursor: 'pointer',
                   transition: 'all 0.2s ease', boxShadow: isSel ? `0 0 20px ${track.color}25` : 'none',
                 }}
               >
@@ -535,12 +536,12 @@ export default function PlacementPage() {
                     <span style={{ fontSize: '20px' }}>{track.logo}</span>
                     <span style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>{track.name}</span>
                   </div>
-                  <span style={{ fontSize: '9px', fontWeight: 700, color: track.color, background: `${track.color}15`, padding: '2px 8px', borderRadius: '100px', border: `1px solid ${track.color}30` }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: track.color, background: `${track.color}15`, padding: '2px 8px', borderRadius: '12px', border: `1px solid ${track.color}30` }}>
                     {track.difficulty}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '11px', color: 'var(--text-2)', marginBottom: '8px' }}>
+                <div style={{ fontSize: '11px', color: '#9CA3AF', marginBottom: '8px' }}>
                   Readiness Level: <strong style={{ color: track.color }}>{track.readiness}%</strong>
                 </div>
 
@@ -554,39 +555,36 @@ export default function PlacementPage() {
         </div>
 
         {/* Selected Track Detailed View */}
-        <div className="card" style={{ marginTop: '14px', padding: '20px', borderLeft: `4px solid ${selectedTrack.color}` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '26px' }}>{selectedTrack.logo}</span>
-              <div>
-                <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#fff' }}>{selectedTrack.name} Interview Track Overview</h3>
-                <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>Curated round breakdown & priority preparation syllabus</div>
-              </div>
+        <div className="dashboard-widget-card" style={{ marginTop: '14px', borderLeft: `4px solid ${selectedTrack.color}` }}>
+          <div className="widget-header" style={{ marginBottom: '14px' }}>
+            <span style={{ fontSize: '24px', marginRight: '8px' }}>{selectedTrack.logo}</span>
+            <div style={{ flex: 1 }}>
+              <span className="widget-title" style={{ fontSize: '16px' }}>{selectedTrack.name} Interview Track Overview</span>
             </div>
-            <span className="pill pill-violet" style={{ fontSize: '10px' }}>Target Batch 2025</span>
+            <span className="prep-tag-pill">Target Batch 2025</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="dashboard-row-grid" style={{ marginTop: '10px' }}>
             {/* Rounds */}
-            <div style={{ background: 'var(--black-3)', padding: '14px', borderRadius: 'var(--r-md)' }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+            <div style={{ background: '#1A1C28', padding: '14px', borderRadius: '8px' }}>
+              <div style={{ fontSize: '10px', color: '#6B7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
                 📋 Interview Rounds Breakdown
               </div>
               {selectedTrack.rounds.map((r, i) => (
-                <div key={i} style={{ fontSize: '11px', color: 'var(--text-1)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div key={i} style={{ fontSize: '12px', color: '#D1D5DB', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ color: selectedTrack.color, fontWeight: 700 }}>R{i+1}:</span> {r}
                 </div>
               ))}
             </div>
 
             {/* Topics */}
-            <div style={{ background: 'var(--black-3)', padding: '14px', borderRadius: 'var(--r-md)' }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+            <div style={{ background: '#1A1C28', padding: '14px', borderRadius: '8px' }}>
+              <div style={{ fontSize: '10px', color: '#6B7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
                 🔥 High-Frequency Focus Topics
               </div>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 {selectedTrack.focusTopics.map(t => (
-                  <span key={t} style={{ fontSize: '10px', padding: '4px 10px', borderRadius: '100px', background: `${selectedTrack.color}15`, color: selectedTrack.color, border: `1px solid ${selectedTrack.color}30`, fontWeight: 600 }}>
+                  <span key={t} style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '12px', background: `${selectedTrack.color}15`, color: selectedTrack.color, border: `1px solid ${selectedTrack.color}30`, fontWeight: 600 }}>
                     {t}
                   </span>
                 ))}
@@ -596,18 +594,18 @@ export default function PlacementPage() {
         </div>
       </div>
 
-      {/* ── Main Split: Flashcards & CS Subject Revision ──────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
+      {/* ── Main Split: Flashcards & CS Subject Revision ── */}
+      <div className="dashboard-row-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))' }}>
 
         {/* Left Column: Flashcards Deck */}
-        <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <span className="card-label"><span className="lbl-icon">🃏</span> High-Yield Flashcards</span>
-            {/* Filter Pills */}
+        <div className="dashboard-widget-card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="widget-header" style={{ marginBottom: '14px' }}>
+            <div className="widget-icon-box">🃏</div>
+            <span className="widget-title">High-Yield Flashcards</span>
             <select
               value={activeSubjectFilter}
               onChange={e => { setActiveSubjectFilter(e.target.value); setCardIdx(0); setFlipped(false); }}
-              style={{ background: 'var(--black-3)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-1)', padding: '4px 10px', borderRadius: '100px', fontSize: '10px', outline: 'none' }}
+              style={{ background: '#1A1C28', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', outline: 'none' }}
             >
               <option value="All">All Subjects</option>
               <option value="os">OS</option>
@@ -626,60 +624,62 @@ export default function PlacementPage() {
               onClick={() => setFlipped(f => !f)}
               style={{
                 flex: 1, minHeight: '160px',
-                background: flipped ? 'rgba(0, 229, 160, 0.06)' : 'rgba(124, 58, 237, 0.06)',
-                border: `1px solid ${flipped ? 'rgba(0, 229, 160, 0.3)' : 'rgba(124, 58, 237, 0.3)'}`,
-                borderRadius: '20px', padding: '24px', cursor: 'pointer',
+                background: flipped ? 'rgba(16, 185, 129, 0.08)' : 'rgba(124, 58, 237, 0.08)',
+                border: `1px solid ${flipped ? 'rgba(16, 185, 129, 0.3)' : 'rgba(124, 58, 237, 0.3)'}`,
+                borderRadius: '12px', padding: '20px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 textAlign: 'center', transition: 'all 0.3s ease',
               }}
             >
               <div>
-                <div style={{ fontSize: '10px', color: flipped ? 'var(--green)' : 'var(--violet-bright)', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px' }}>
+                <div style={{ fontSize: '11px', color: flipped ? '#10B981' : '#A78BFA', fontWeight: 700, marginBottom: '8px', letterSpacing: '1px' }}>
                   {flipped ? '✓ ANSWER' : '❓ QUESTION (Click card to flip)'}
                 </div>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-1)', lineHeight: 1.6 }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff', lineHeight: 1.6 }}>
                   {flipped ? currentFlashcard.a : currentFlashcard.q}
                 </div>
               </div>
             </div>
           ) : (
-            <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-3)', fontSize: '12px' }}>No flashcards found for selected subject.</div>
+            <div style={{ padding: '30px', textAlign: 'center', color: '#6B7280', fontSize: '12px' }}>No flashcards found for selected subject.</div>
           )}
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '14px', alignItems: 'center' }}>
-            <button id="btn-prev-card" onClick={prevCard} className="btn btn-ghost btn-sm">← Prev</button>
-            <span style={{ flex: 1, textAlign: 'center', fontSize: '11px', color: 'var(--text-3)' }}>
+            <button id="btn-prev-card" onClick={prevCard} className="warmup-btn-dark" style={{ padding: '4px 12px' }}>← Prev</button>
+            <span style={{ flex: 1, textAlign: 'center', fontSize: '11px', color: '#9CA3AF' }}>
               {filteredFlashcards.length > 0 ? (cardIdx % filteredFlashcards.length) + 1 : 0} / {filteredFlashcards.length}
             </span>
-            <button id="btn-next-card" onClick={nextCard} className="btn btn-ghost btn-sm">Next →</button>
+            <button id="btn-next-card" onClick={nextCard} className="warmup-btn-dark" style={{ padding: '4px 12px' }}>Next →</button>
           </div>
         </div>
 
         {/* Right Column: CS Subject Revision Cards */}
-        <div className="card" style={{ padding: '20px' }}>
-          <div className="card-label" style={{ marginBottom: '14px' }}>
-            <span className="lbl-icon">📚</span> CS Core & Aptitude Progress
+        <div className="dashboard-widget-card">
+          <div className="widget-header" style={{ marginBottom: '14px' }}>
+            <div className="widget-icon-box">📚</div>
+            <span className="widget-title">CS Core & Aptitude Progress</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {CS_SUBJECTS.map(subj => {
               const pct = Math.round((subj.doneCount / subj.qCount) * 100);
               return (
-                <div key={subj.id} style={{ background: 'var(--black-3)', borderRadius: 'var(--r-md)', padding: '12px 14px' }}>
+                <div key={subj.id} style={{ background: '#1A1C28', borderRadius: '8px', padding: '12px 14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '16px' }}>{subj.icon}</span>
                       <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>{subj.name}</span>
                     </div>
                     <button
-                      className="btn btn-outline-cyan btn-xs"
+                      className="warmup-btn-dark"
+                      style={{ fontSize: '11px', padding: '2px 8px' }}
                       onClick={() => setActiveCheatSheet(subj)}
                     >
                       Revision Notes 📖
                     </button>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-3)', marginBottom: '5px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#9CA3AF', marginBottom: '5px' }}>
                     <span>Progress: {subj.doneCount} / {subj.qCount} solved</span>
                     <span style={{ color: subj.color, fontWeight: 700 }}>{pct}%</span>
                   </div>
@@ -696,9 +696,10 @@ export default function PlacementPage() {
 
       </div>
 
-      {/* ── Modals ────────────────────────────────────────────────── */}
+      {/* ── Modals ── */}
       {showQuiz && <PlacementQuizModal onClose={() => setShowQuiz(false)} />}
       {activeCheatSheet && <CheatSheetModal subject={activeCheatSheet} onClose={() => setActiveCheatSheet(null)} />}
     </div>
   );
 }
+

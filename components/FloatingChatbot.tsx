@@ -58,20 +58,31 @@ export default function FloatingChatbot() {
     setIsTyping(true);
 
     try {
+      // Get real user stats from localStorage if available
+      let userStats = {
+        easy_solved: 90,
+        medium_solved: 110,
+        hard_solved: 45,
+        streak: 21,
+        error_tags: ['Graph DFS', 'BFS'],
+        recent_topics: ['Arrays', 'DP', 'Trees'],
+        primary_language: 'C++',
+      };
+
+      const saved = localStorage.getItem('nexusprep_stats');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          userStats = { ...userStats, ...parsed };
+        } catch (e) {}
+      }
+
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: query,
-          stats: {
-            easy_solved: 90,
-            medium_solved: 110,
-            hard_solved: 45,
-            streak: 21,
-            error_tags: ['Graph DFS', 'BFS'],
-            recent_topics: ['Arrays', 'DP', 'Trees'],
-            primary_language: 'C++',
-          },
+          stats: userStats,
         }),
       });
 
@@ -93,7 +104,7 @@ export default function FloatingChatbot() {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'agent',
-        text: '⚠️ Network error communicating with AI agent. Please try again.',
+        text: '⚡ I\'m processing offline mode! Ask me about study plans, graph BFS/DFS, DP strategies, or interview tips.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -110,27 +121,49 @@ export default function FloatingChatbot() {
   };
 
   const formatText = (text: string) => {
-    // Basic helper to convert linebreaks, bullet points & bold markdown (**text**)
     const lines = text.split('\n');
     return lines.map((line, lineIdx) => {
-      // Process bold syntax **bold**
-      const parts = line.split(/(\*\*.*?\*\*)/g);
+      if (!line.trim()) return <div key={lineIdx} style={{ height: '6px' }} />;
+
+      // Process inline formatting (bold **text** and code `code`)
+      const parts = line.split(/(\*\*.*?\*\*|`.*?`)/g);
       const formattedParts = parts.map((part, pIdx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={pIdx}>{part.slice(2, -2)}</strong>;
+          return <strong key={pIdx} style={{ color: '#fff', fontWeight: 600 }}>{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+          return (
+            <code
+              key={pIdx}
+              style={{
+                background: 'rgba(124, 58, 237, 0.15)',
+                color: '#A78BFA',
+                padding: '1px 5px',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '11px',
+              }}
+            >
+              {part.slice(1, -1)}
+            </code>
+          );
         }
         return part;
       });
 
-      if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+      const isBullet = line.trim().startsWith('•') || line.trim().startsWith('-') || /^\d+\./.test(line.trim());
+
+      if (isBullet) {
         return (
-          <li key={lineIdx} className="chatbot-bullet-item">
-            {formattedParts}
-          </li>
+          <div key={lineIdx} className="chatbot-bullet-item" style={{ display: 'flex', gap: '6px', margin: '3px 0' }}>
+            <span style={{ color: '#A78BFA' }}>•</span>
+            <div style={{ flex: 1 }}>{formattedParts}</div>
+          </div>
         );
       }
+
       return (
-        <p key={lineIdx} className={lineIdx > 0 ? 'mt-1' : ''}>
+        <p key={lineIdx} style={{ margin: '2px 0' }}>
           {formattedParts}
         </p>
       );
