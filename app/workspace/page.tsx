@@ -26,6 +26,8 @@ export interface Problem {
   tags?: string[];
   acRate?: number;
   titleSlug?: string;
+  platform?: 'leetcode' | 'hackerrank' | 'placementhub';
+  points?: number;
 }
 
 type RunResult = {
@@ -281,6 +283,80 @@ const BUILTIN_PROBLEMS: Problem[] = [
   },
 ];
 
+/* ── Built-in HackerRank Problem Bank ───────────────────────────────── */
+const HACKERRANK_PROBLEMS: Problem[] = [
+  {
+    id: 1001, title: 'Solve Me First', topic: 'Warmup', difficulty: 'Easy', points: 10, platform: 'hackerrank',
+    tags: ['Algorithms', 'Warmup', 'HackerRank'],
+    description: 'Complete the function `solveMeFirst` to compute the sum of two integers `a` and `b`.\n\nInput Format:\na = first integer\nb = second integer\n\nConstraints:\n1 <= a, b <= 1000',
+    examples: [{ input: 'a = 2, b = 3', output: '5' }],
+    defaultStdin: '2\n3',
+    templates: {
+      cpp: `#include <iostream>\nusing namespace std;\n\nint solveMeFirst(int a, int b) {\n    return a + b;\n}\n\nint main() {\n    int a, b;\n    if (cin >> a >> b) {\n        cout << solveMeFirst(a, b) << endl;\n    }\n    return 0;\n}`,
+      java: `import java.util.*;\n\npublic class Solution {\n    static int solveMeFirst(int a, int b) {\n        return a + b;\n    }\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        int a = in.nextInt();\n        int b = in.nextInt();\n        System.out.println(solveMeFirst(a, b));\n    }\n}`,
+      python: `def solveMeFirst(a: int, b: int) -> int:\n    return a + b\n\nnum1 = int(input())\nnum2 = int(input())\nprint(solveMeFirst(num1, num2))`,
+      javascript: `function solveMeFirst(a, b) {\n    return a + b;\n}\nconsole.log(solveMeFirst(2, 3));`,
+    }
+  },
+  {
+    id: 1002, title: 'Simple Array Sum', topic: 'Warmup', difficulty: 'Easy', points: 10, platform: 'hackerrank',
+    tags: ['Algorithms', 'Arrays', 'HackerRank'],
+    description: 'Given an array of integers, find the sum of its elements.\n\nInput Format:\nFirst line contains integer n (size of array).\nSecond line contains n space-separated integers.',
+    examples: [{ input: 'ar = [1, 2, 3, 4, 10, 11]', output: '31' }],
+    defaultStdin: '6\n1 2 3 4 10 11',
+    templates: {
+      cpp: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nint simpleArraySum(vector<int> ar) {\n    int sum = 0;\n    for (int x : ar) sum += x;\n    return sum;\n}\n\nint main() {\n    cout << simpleArraySum({1, 2, 3, 4, 10, 11}) << endl;\n    return 0;\n}`,
+      python: `def simpleArraySum(ar):\n    return sum(ar)\n\nprint(simpleArraySum([1, 2, 3, 4, 10, 11]))`,
+      java: `import java.util.*;\n\npublic class Solution {\n    public static int simpleArraySum(List<Integer> ar) {\n        int sum = 0;\n        for (int x : ar) sum += x;\n        return sum;\n    }\n    public static void main(String[] args) {\n        System.out.println(simpleArraySum(Arrays.asList(1, 2, 3, 4, 10, 11)));\n    }\n}`,
+      javascript: `function simpleArraySum(ar) {\n    return ar.reduce((a, b) => a + b, 0);\n}\nconsole.log(simpleArraySum([1, 2, 3, 4, 10, 11]));`,
+    }
+  },
+  {
+    id: 1003, title: 'Compare the Triplets', topic: 'Warmup', difficulty: 'Easy', points: 15, platform: 'hackerrank',
+    tags: ['Algorithms', 'Arrays', 'HackerRank'],
+    description: 'Alice and Bob each created one problem for HackerRank. A reviewer rates the two challenges, awarding points from 1 to 100 for three categories: problem clarity, originality, and difficulty.\n\nCompare a[i] and b[i]:\n- If a[i] > b[i], Alice is awarded 1 point.\n- If a[i] < b[i], Bob is awarded 1 point.\n- If a[i] = b[i], neither person receives a point.',
+    examples: [{ input: 'a = [5, 6, 7], b = [3, 6, 10]', output: '[1, 1]' }],
+    defaultStdin: '5 6 7\n3 6 10',
+    templates: {
+      cpp: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nvector<int> compareTriplets(vector<int> a, vector<int> b) {\n    int alice = 0, bob = 0;\n    for (int i = 0; i < 3; i++) {\n        if (a[i] > b[i]) alice++;\n        else if (a[i] < b[i]) bob++;\n    }\n    return {alice, bob};\n}\n\nint main() {\n    auto res = compareTriplets({5, 6, 7}, {3, 6, 10});\n    cout << res[0] << " " << res[1] << endl;\n    return 0;\n}`,
+      python: `def compareTriplets(a, b):\n    alice = sum(1 for i in range(3) if a[i] > b[i])\n    bob = sum(1 for i in range(3) if a[i] < b[i])\n    return [alice, bob]\n\nprint(compareTriplets([5, 6, 7], [3, 6, 10]))`,
+      java: `import java.util.*;\n\npublic class Solution {\n    public static List<Integer> compareTriplets(List<Integer> a, List<Integer> b) {\n        int alice = 0, bob = 0;\n        for (int i = 0; i < 3; i++) {\n            if (a.get(i) > b.get(i)) alice++;\n            else if (a.get(i) < b.get(i)) bob++;\n        }\n        return Arrays.asList(alice, bob);\n    }\n    public static void main(String[] args) {\n        System.out.println(compareTriplets(Arrays.asList(5,6,7), Arrays.asList(3,6,10)));\n    }\n}`,
+      javascript: `function compareTriplets(a, b) {\n    let alice = 0, bob = 0;\n    for (let i = 0; i < 3; i++) {\n        if (a[i] > b[i]) alice++;\n        else if (a[i] < b[i]) bob++;\n    }\n    return [alice, bob];\n}\nconsole.log(compareTriplets([5,6,7], [3,6,10]));`,
+    }
+  },
+  {
+    id: 1004, title: 'Diagonal Difference', topic: 'Arrays & Matrices', difficulty: 'Easy', points: 15, platform: 'hackerrank',
+    tags: ['Algorithms', 'Matrices', 'HackerRank'],
+    description: 'Given a square matrix, calculate the absolute difference between the sums of its diagonals.\n\nExample:\n1 2 3\n4 5 6\n9 8 9\nPrimary diagonal = 1 + 5 + 9 = 15.\nSecondary diagonal = 3 + 5 + 9 = 17.\nAbsolute difference = |15 - 17| = 2.',
+    examples: [{ input: 'matrix = [[11, 2, 4], [4, 5, 6], [10, 8, -12]]', output: '15' }],
+    defaultStdin: '3\n11 2 4\n4 5 6\n10 8 -12',
+    templates: {
+      cpp: `#include <iostream>\n#include <vector>\n#include <cmath>\nusing namespace std;\n\nint diagonalDifference(vector<vector<int>> arr) {\n    int d1 = 0, d2 = 0, n = arr.size();\n    for (int i = 0; i < n; i++) {\n        d1 += arr[i][i];\n        d2 += arr[i][n - 1 - i];\n    }\n    return abs(d1 - d2);\n}\n\nint main() {\n    vector<vector<int>> arr = {{11, 2, 4}, {4, 5, 6}, {10, 8, -12}};\n    cout << diagonalDifference(arr) << endl;\n    return 0;\n}`,
+      python: `def diagonalDifference(arr):\n    n = len(arr)\n    d1 = sum(arr[i][i] for i in range(n))\n    d2 = sum(arr[i][n - 1 - i] for i in range(n))\n    return abs(d1 - d2)\n\nprint(diagonalDifference([[11, 2, 4], [4, 5, 6], [10, 8, -12]]))`,
+      java: `import java.util.*;\n\npublic class Solution {\n    public static int diagonalDifference(List<List<Integer>> arr) {\n        int d1 = 0, d2 = 0, n = arr.size();\n        for (int i = 0; i < n; i++) {\n            d1 += arr.get(i).get(i);\n            d2 += arr.get(i).get(n - 1 - i);\n        }\n        return Math.abs(d1 - d2);\n    }\n    public static void main(String[] args) {\n        System.out.println("Diagonal Difference ready");\n    }\n}`,
+      javascript: `function diagonalDifference(arr) {\n    let d1 = 0, d2 = 0, n = arr.length;\n    for (let i = 0; i < n; i++) {\n        d1 += arr[i][i];\n        d2 += arr[i][n - 1 - i];\n    }\n    return Math.abs(d1 - d2);\n}\nconsole.log(diagonalDifference([[11, 2, 4], [4, 5, 6], [10, 8, -12]]));`,
+    }
+  },
+  {
+    id: 1005, title: 'Sparse Arrays', topic: 'Data Structures', difficulty: 'Medium', points: 25, platform: 'hackerrank',
+    tags: ['Data Structures', 'Strings', 'HackerRank'],
+    description: 'There is a collection of input strings and a collection of query strings. For each query string, determine how many times it occurs in the list of input strings. Return an array of the results.',
+    examples: [{ input: 'strings = ["aba","baba","aba","xzxb"], queries = ["aba","xzxb","ab"]', output: '[2, 1, 0]' }],
+    defaultStdin: '4\naba\nbaba\naba\nxzxb\n3\naba\nxzxb\nab',
+    templates: {
+      cpp: `#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\nusing namespace std;\n\nvector<int> matchingStrings(vector<string> stringList, vector<string> queries) {\n    unordered_map<string, int> freq;\n    for (const auto& s : stringList) freq[s]++;\n    vector<int> res;\n    for (const auto& q : queries) res.push_back(freq[q]);\n    return res;\n}\n\nint main() {\n    auto res = matchingStrings({"aba","baba","aba","xzxb"}, {"aba","xzxb","ab"});\n    for (int x : res) cout << x << " ";\n    cout << endl;\n    return 0;\n}`,
+      python: `from collections import Counter\n\ndef matchingStrings(stringList, queries):\n    counts = Counter(stringList)\n    return [counts[q] for q in queries]\n\nprint(matchingStrings(["aba","baba","aba","xzxb"], ["aba","xzxb","ab"]))`,
+      java: `import java.util.*;\n\npublic class Solution {\n    public static List<Integer> matchingStrings(List<String> stringList, List<String> queries) {\n        Map<String, Integer> map = new HashMap<>();\n        for (String s : stringList) map.put(s, map.getOrDefault(s, 0) + 1);\n        List<Integer> res = new ArrayList<>();\n        for (String q : queries) res.add(map.getOrDefault(q, 0));\n        return res;\n    }\n    public static void main(String[] args) {\n        System.out.println(matchingStrings(Arrays.asList("aba","baba","aba","xzxb"), Arrays.asList("aba","xzxb","ab")));\n    }\n}`,
+      javascript: `function matchingStrings(stringList, queries) {\n    const map = new Map();\n    for (const s of stringList) map.set(s, (map.get(s) || 0) + 1);\n    return queries.map(q => map.get(q) || 0);\n}\nconsole.log(matchingStrings(["aba","baba","aba","xzxb"], ["aba","xzxb","ab"]));`,
+    }
+  }
+];
+
+const ALL_INITIAL_PROBLEMS: Problem[] = [
+  ...BUILTIN_PROBLEMS.map(p => ({ ...p, platform: 'leetcode' as const })),
+  ...HACKERRANK_PROBLEMS,
+];
+
 /* ── Study Plans ─────────────────────────────────────────────────────── */
 const STUDY_PLANS = [
   {
@@ -431,14 +507,15 @@ function LeetCodeBrowser({ onImport }: { onImport: (slug: string) => void }) {
 
 /* ── Main Workspace Page ─────────────────────────────────────────────── */
 export default function WorkspacePage() {
-  const [problems, setProblems] = useState<Problem[]>(BUILTIN_PROBLEMS);
-  const [selectedProblem, setSelectedProblem] = useState<Problem>(BUILTIN_PROBLEMS[0]);
+  const [problems, setProblems] = useState<Problem[]>(ALL_INITIAL_PROBLEMS);
+  const [selectedProblem, setSelectedProblem] = useState<Problem>(ALL_INITIAL_PROBLEMS[0]);
   const [language, setLanguage] = useState(LANG_OPTIONS[0]);
-  const [code, setCode] = useState(BUILTIN_PROBLEMS[0].templates.cpp);
-  const [customInput, setCustomInput] = useState(BUILTIN_PROBLEMS[0].defaultStdin || '');
+  const [code, setCode] = useState(ALL_INITIAL_PROBLEMS[0].templates.cpp);
+  const [customInput, setCustomInput] = useState(ALL_INITIAL_PROBLEMS[0].defaultStdin || '');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('All');
   const [selectedDiff, setSelectedDiff] = useState('All');
+  const [selectedPlatform, setSelectedPlatform] = useState<'All' | 'leetcode' | 'hackerrank'>('All');
   const [activeStudyPlan, setActiveStudyPlan] = useState<string | null>(null);
   const [solvedSet, setSolvedSet] = useState<Set<number>>(new Set());
 
@@ -453,7 +530,7 @@ export default function WorkspacePage() {
   const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
-  const [githubResult, setGithubResult] = useState<{ success: boolean; message: string; url?: string } | null>(null);
+  const [githubResult, setGithubResult] = useState<{ success: boolean; message: string; url?: string; path?: string } | null>(null);
   const [activeLeftTab, setActiveLeftTab] = useState<'statement' | 'bank' | 'leetcode-live' | 'study-plans' | 'sync'>('statement');
 
   const editorRef = useRef<any>(null);
@@ -493,7 +570,7 @@ export default function WorkspacePage() {
         setImportError(data.error || 'Failed to import problem');
         return;
       }
-      const newProblem: Problem = data;
+      const newProblem: Problem = { ...data, platform: 'leetcode' };
       setProblems(prev => [newProblem, ...prev.filter(p => p.id !== newProblem.id)]);
       handleProblemSelect(newProblem);
       setImportQuery('');
@@ -540,21 +617,45 @@ export default function WorkspacePage() {
       setResult({ status: { id: 0, description: 'Network Error' }, stdout: null, stderr: e.message, compile_output: null, time: null, memory: null });
     }
     try {
-      const ghRes = await fetch('/api/github/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: currentCode, language: language.value, problemTitle: selectedProblem.title, topic: selectedProblem.topic }) });
-      setGithubResult(await ghRes.json());
-    } catch (e: any) { setGithubResult({ success: false, message: `GitHub push failed: ${e.message}` }); }
+      const platformName = selectedProblem.platform || 'leetcode';
+      const ghRes = await fetch('/api/github/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: currentCode,
+          language: language.value,
+          problemTitle: selectedProblem.title,
+          topic: selectedProblem.topic,
+          platform: platformName,
+        }),
+      });
+      const ghData = await ghRes.json();
+      setGithubResult(ghData);
+
+      // Update LocalStorage pushes counter
+      if (ghData.success) {
+        try {
+          const stats = JSON.parse(localStorage.getItem('nexusprep_stats') || '{}');
+          stats.github_pushes = (stats.github_pushes || 85) + 1;
+          localStorage.setItem('nexusprep_stats', JSON.stringify(stats));
+        } catch (e) {}
+      }
+    } catch (e: any) {
+      setGithubResult({ success: false, message: `GitHub push failed: ${e.message}` });
+    }
     setSubmitting(false);
   }, [code, language, selectedProblem, customInput]);
 
   const studyPlanProblems = activeStudyPlan
-    ? BUILTIN_PROBLEMS.filter(p => STUDY_PLANS.find(sp => sp.id === activeStudyPlan)?.problems.includes(p.id))
-    : BUILTIN_PROBLEMS;
+    ? ALL_INITIAL_PROBLEMS.filter(p => STUDY_PLANS.find(sp => sp.id === activeStudyPlan)?.problems.includes(p.id))
+    : ALL_INITIAL_PROBLEMS;
 
   const filteredProblems = (activeStudyPlan ? studyPlanProblems : problems).filter(p => {
-    const matchSearch = !searchQuery || p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.topic.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchTopic = selectedTopic === 'All' || p.topic === selectedTopic;
-    const matchDiff = selectedDiff === 'All' || p.difficulty === selectedDiff;
-    return matchSearch && matchTopic && matchDiff;
+    const matchSearch   = !searchQuery || p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.topic.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchTopic    = selectedTopic === 'All' || p.topic === selectedTopic;
+    const matchDiff     = selectedDiff === 'All' || p.difficulty === selectedDiff;
+    const matchPlatform = selectedPlatform === 'All' || (p.platform || 'leetcode') === selectedPlatform;
+    return matchSearch && matchTopic && matchDiff && matchPlatform;
   });
 
   const isAccepted = result?.status?.id === 3;
@@ -633,10 +734,21 @@ export default function WorkspacePage() {
           {/* ── TAB: PROBLEM STATEMENT ── */}
           {activeLeftTab === 'statement' && (
             <div className="card" style={{ flex: 1, overflow: 'auto', padding: '18px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '10px', color: diffColor[selectedProblem.difficulty], fontWeight: 700, background: diffBg[selectedProblem.difficulty], padding: '3px 10px', borderRadius: 'var(--r-pill)', border: `1px solid ${diffColor[selectedProblem.difficulty]}35` }}>
                   {selectedProblem.difficulty}
                 </span>
+
+                {selectedProblem.platform === 'hackerrank' ? (
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#3ecf8e', background: 'rgba(62,207,142,0.15)', padding: '3px 10px', borderRadius: 'var(--r-pill)', border: '1px solid rgba(62,207,142,0.3)' }}>
+                    🟢 HackerRank · {selectedProblem.points ?? 10} pts
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#f0a500', background: 'rgba(240,165,0,0.15)', padding: '3px 10px', borderRadius: 'var(--r-pill)', border: '1px solid rgba(240,165,0,0.3)' }}>
+                    🟡 LeetCode
+                  </span>
+                )}
+
                 <span style={{ fontSize: '10px', color: 'var(--text-3)' }}>{selectedProblem.topic}</span>
                 {selectedProblem.acRate && <span style={{ fontSize: '9px', color: 'var(--text-3)', marginLeft: 'auto' }}>✓ {selectedProblem.acRate}%</span>}
                 {solvedSet.has(selectedProblem.id) && <span style={{ fontSize: '10px', color: 'var(--green)', background: 'rgba(62,207,142,0.1)', padding: '2px 8px', borderRadius: '100px', border: '1px solid rgba(62,207,142,0.2)' }}>✅ Solved</span>}
@@ -702,8 +814,42 @@ export default function WorkspacePage() {
           {/* ── TAB: MY PROBLEM BANK ── */}
           {activeLeftTab === 'bank' && (
             <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '14px', overflow: 'hidden' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-1)', marginBottom: '12px' }}>
-                📋 My Problem Bank <span style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 400 }}>({problems.length} problems · {solvedSet.size} solved)</span>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-1)', marginBottom: '10px' }}>
+                📋 Problem Bank <span style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 400 }}>({problems.length} problems · {solvedSet.size} solved)</span>
+              </div>
+
+              {/* Platform Switcher Buttons */}
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                <button
+                  onClick={() => setSelectedPlatform('All')}
+                  style={{
+                    flex: 1, padding: '5px 8px', borderRadius: 'var(--r-md)', fontSize: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                    background: selectedPlatform === 'All' ? 'var(--violet)' : 'var(--black-3)',
+                    color: selectedPlatform === 'All' ? '#fff' : 'var(--text-3)', border: 'none'
+                  }}
+                >
+                  All Platforms
+                </button>
+                <button
+                  onClick={() => setSelectedPlatform('leetcode')}
+                  style={{
+                    flex: 1, padding: '5px 8px', borderRadius: 'var(--r-md)', fontSize: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                    background: selectedPlatform === 'leetcode' ? '#f0a500' : 'var(--black-3)',
+                    color: selectedPlatform === 'leetcode' ? '#000' : 'var(--text-3)', border: 'none'
+                  }}
+                >
+                  🟡 LeetCode
+                </button>
+                <button
+                  onClick={() => setSelectedPlatform('hackerrank')}
+                  style={{
+                    flex: 1, padding: '5px 8px', borderRadius: 'var(--r-md)', fontSize: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                    background: selectedPlatform === 'hackerrank' ? '#3ecf8e' : 'var(--black-3)',
+                    color: selectedPlatform === 'hackerrank' ? '#000' : 'var(--text-3)', border: 'none'
+                  }}
+                >
+                  🟢 HackerRank
+                </button>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px', flexShrink: 0 }}>
@@ -730,14 +876,22 @@ export default function WorkspacePage() {
                         {solvedSet.has(p.id) && <span style={{ color: 'var(--green)', fontSize: '10px' }}>✓</span>}
                         <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>#{p.id} {p.title}</span>
                       </div>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: diffColor[p.difficulty], flexShrink: 0, marginLeft: '6px' }}>{p.difficulty}</span>
+                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
+                        {p.platform === 'hackerrank' ? (
+                          <span style={{ fontSize: '9px', fontWeight: 700, color: '#3ecf8e', background: 'rgba(62,207,142,0.12)', padding: '1px 6px', borderRadius: '4px' }}>HackerRank</span>
+                        ) : (
+                          <span style={{ fontSize: '9px', fontWeight: 700, color: '#f0a500', background: 'rgba(240,165,0,0.12)', padding: '1px 6px', borderRadius: '4px' }}>LeetCode</span>
+                        )}
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: diffColor[p.difficulty], marginLeft: '2px' }}>{p.difficulty}</span>
+                      </div>
                     </div>
-                    <div style={{ fontSize: '10px', color: 'var(--text-3)', marginTop: '2px' }}>{p.topic}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-3)', marginTop: '2px' }}>{p.topic} {p.points ? `· ${p.points} pts` : ''}</div>
                   </div>
                 ))}
               </div>
             </div>
           )}
+
 
           {/* ── TAB: BROWSE LEETCODE LIVE ── */}
           {activeLeftTab === 'leetcode-live' && (
