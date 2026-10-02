@@ -22,56 +22,54 @@ export default function Sidebar() {
   const { user } = useAuth();
 
   return (
-    <aside className="sidebar">
-      {/* ── Top Header Glowing Violet Card ── */}
-      <div className="sidebar-brand-card">
-        <div className="brand-header-row">
-          <div className="brand-logo-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <span className="brand-title">PlacementHub</span>
+    <aside className="sidebar-purple-container">
+      {/* Top Logo White Pill */}
+      <div className="sidebar-logo-white-pill">
+        <div className="logo-icon-purple">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B46F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
         </div>
+        <span className="logo-text-dark">PlacementHub</span>
+      </div>
 
-        {/* User Card Profile inside Header */}
-        <div className="brand-user-box">
-          <div className="brand-avatar">{user?.avatar || 'AC'}</div>
-          <div className="brand-user-details">
-            <div className="brand-user-name">{user?.name || 'Anubhab Chakraborty'}</div>
-            <div className="brand-user-sub">Placement prep · Pro</div>
-          </div>
+      {/* User Card Profile Box inside Purple Sidebar */}
+      <div className="sidebar-user-dark-card">
+        <div className="sidebar-user-avatar">{user?.avatar || 'AC'}</div>
+        <div className="sidebar-user-info">
+          <div className="sidebar-user-name">{user?.name || 'Anubhab Chakraborty'}</div>
+          <div className="sidebar-user-sub">Placement prep · Pro</div>
         </div>
       </div>
 
-      {/* ── Main Nav Pills ── */}
-      <nav className="sidebar-nav">
+      {/* Main Nav Pills */}
+      <nav className="sidebar-nav-pills">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`sidebar-pill-item ${isActive ? 'active' : ''}`}
+              className={`sidebar-dark-pill ${isActive ? 'active' : ''}`}
             >
-              <span className="pill-item-label">{item.label}</span>
-              {item.badge && <span className="pill-item-badge">{item.badge}</span>}
+              <span>{item.label}</span>
+              {item.badge && <span className="sidebar-pill-badge">{item.badge}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* ── Footer Nav Pills ── */}
-      <div className="sidebar-footer-nav">
+      {/* Footer Nav Pills */}
+      <div className="sidebar-footer-pills">
         {footerItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`sidebar-pill-item ${isActive ? 'active' : ''}`}
+              className={`sidebar-dark-pill ${isActive ? 'active' : ''}`}
             >
-              <span className="pill-item-label">{item.label}</span>
+              <span>{item.label}</span>
             </Link>
           );
         })}
@@ -79,3 +77,4 @@ export default function Sidebar() {
     </aside>
   );
 }
+
