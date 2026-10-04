@@ -1,115 +1,154 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { startStudySession, endStudySession } from '@/lib/library/room-engine';
 
-export default function FocusTimerWidget() {
-  const [secondsLeft, setSecondsLeft] = useState(24 * 60 + 36);
-  const [isRunning, setIsRunning] = useState(true);
-  const [activeSound, setActiveSound] = useState<string | null>('rain');
-  const [volume, setVolume] = useState(70);
+interface FocusTimerWidgetProps {
+  userId?: string;
+  roomId?: string;
+  roomName?: string;
+  topic?: string;
+}
 
+const POMODORO_WORK = 25 * 60;   // 25 min
+const POMODORO_BREAK = 5 * 60;   // 5 min
+
+export default function FocusTimerWidget({
+  userId = 'anon',
+  roomId = 'community-hall-1',
+  roomName = 'Community Study Hall',
+  topic = 'General Study',
+}: FocusTimerWidgetProps) {
+  const [secondsLeft, setSecondsLeft] = useState(POMODORO_WORK);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isBreak, setIsBreak] = useState(false);
+  const [sessionActive, setSessionActive] = useState(false);
+  const [activeSound, setActiveSound] = useState<string | null>(null);
+
+  const sounds = [
+    { id: 'rain', label: '🌧️', title: 'Rain' },
+    { id: 'lofi', label: '🎹', title: 'Lo-fi' },
+    { id: 'cafe', label: '☕', title: 'Café' },
+    { id: 'waves', label: '🌊', title: 'Waves' },
+    { id: 'white', label: '📻', title: 'White noise' },
+  ];
+
+  // Timer countdown
   useEffect(() => {
     if (!isRunning) return;
     const interval = setInterval(() => {
-      setSecondsLeft((s) => (s > 0 ? s - 1 : 25 * 60));
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          setIsRunning(false);
+          setIsBreak((b) => !b);
+          return isBreak ? POMODORO_WORK : POMODORO_BREAK;
+        }
+        return s - 1;
+      });
     }, 1000);
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRunning, isBreak]);
 
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-  const sounds = [
-    { id: 'spotify', label: '🎧' },
-    { id: 'rain', label: '🌧️' },
-    { id: 'lofi', label: '🎹' },
-    { id: 'cafe', label: '☕' },
-    { id: 'waves', label: '🌊' },
-  ];
+  // Ring progress (0–1)
+  const total = isBreak ? POMODORO_BREAK : POMODORO_WORK;
+  const progress = 1 - secondsLeft / total;
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - progress);
+
+  const handleStartStop = useCallback(() => {
+    if (!sessionActive) {
+      startStudySession(roomId, roomName, userId, topic);
+      setSessionActive(true);
+    }
+    setIsRunning((r) => !r);
+  }, [sessionActive, roomId, roomName, userId, topic]);
+
+  const handleEndSession = useCallback(() => {
+    setIsRunning(false);
+    setSecondsLeft(POMODORO_WORK);
+    setIsBreak(false);
+    setSessionActive(false);
+    endStudySession();
+  }, []);
 
   return (
     <div style={{
       background: 'rgba(20, 21, 38, 0.8)',
       border: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRadius: '14px',
-      padding: '16px 18px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      height: '100%'
+      borderRadius: '14px', padding: '16px 18px',
+      display: 'flex', flexDirection: 'column',
+      justifyContent: 'space-between', height: '100%',
     }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Focus session</span>
         <span style={{
-          fontSize: '11px',
-          padding: '2px 8px',
-          borderRadius: '12px',
-          background: 'rgba(99, 91, 255, 0.15)',
-          color: '#a78bfa',
-          fontWeight: '600'
+          fontSize: '11px', padding: '2px 8px', borderRadius: '12px',
+          background: isBreak ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 91, 255, 0.15)',
+          color: isBreak ? '#10b981' : '#a78bfa', fontWeight: '600',
         }}>
-          Pomodoro 25/5
+          {isBreak ? '☕ Break' : '🎯 Focus 25'}
         </span>
       </div>
 
-      {/* Ring Timer */}
+      {/* SVG Ring Timer */}
       <div style={{ textAlign: 'center', margin: '14px 0', position: 'relative' }}>
-        <div style={{
-          width: '110px',
-          height: '110px',
-          borderRadius: '50%',
-          border: '6px solid rgba(99, 91, 255, 0.2)',
-          borderTopColor: '#635bff',
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 0 20px rgba(99, 91, 255, 0.3)'
-        }}>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: '#ffffff', fontFamily: 'monospace' }}>
+        <svg width="110" height="110" style={{ display: 'block', margin: '0 auto' }}>
+          {/* Background ring */}
+          <circle cx="55" cy="55" r={radius} fill="none" stroke="rgba(99,91,255,0.15)" strokeWidth="6" />
+          {/* Progress ring */}
+          <circle
+            cx="55" cy="55" r={radius}
+            fill="none"
+            stroke={isBreak ? '#10b981' : '#635bff'}
+            strokeWidth="6"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            style={{ transform: 'rotate(-90deg)', transformOrigin: '55px 55px', transition: 'stroke-dashoffset 1s linear' }}
+          />
+          {/* Center text */}
+          <text x="55" y="51" textAnchor="middle" fill="#ffffff" fontSize="18" fontWeight="800" fontFamily="monospace">
             {timeStr}
+          </text>
+          <text x="55" y="65" textAnchor="middle" fill="#8b8ea9" fontSize="9">
+            {isBreak ? 'Break time' : 'Focus time'}
+          </text>
+        </svg>
+
+        {sessionActive && (
+          <div style={{ fontSize: '11px', color: '#9a9cb8', marginTop: '4px' }}>
+            🎯 {topic}
           </div>
-          <div style={{ fontSize: '9px', color: '#8b8ea9', marginTop: '2px' }}>
-            Focus time
-          </div>
-        </div>
-        <div style={{ fontSize: '11px', color: '#9a9cb8', marginTop: '8px' }}>
-          🎯 Goal: 2 hours - DSA
-        </div>
+        )}
       </div>
 
       {/* Buttons */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
         <button
-          onClick={() => setIsRunning(!isRunning)}
+          onClick={handleStartStop}
           style={{
-            flex: 1,
-            padding: '8px',
-            borderRadius: '8px',
-            background: '#5e43ff',
-            border: 'none',
-            color: '#ffffff',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: 'pointer'
+            flex: 1, padding: '8px', borderRadius: '8px',
+            background: isRunning ? 'rgba(99, 91, 255, 0.3)' : '#5e43ff',
+            border: isRunning ? '1px solid rgba(99, 91, 255, 0.5)' : 'none',
+            color: '#ffffff', fontSize: '12px', fontWeight: '600', cursor: 'pointer',
           }}
         >
-          {isRunning ? 'Pause' : 'Resume'}
+          {isRunning ? '⏸ Pause' : sessionActive ? '▶ Resume' : '▶ Start'}
         </button>
         <button
-          onClick={() => setSecondsLeft(25 * 60)}
+          onClick={handleEndSession}
+          disabled={!sessionActive}
           style={{
-            flex: 1,
-            padding: '8px',
-            borderRadius: '8px',
+            flex: 1, padding: '8px', borderRadius: '8px',
             background: 'rgba(217, 56, 72, 0.3)',
             border: '1px solid rgba(217, 56, 72, 0.5)',
-            color: '#f87171',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: 'pointer'
+            color: '#f87171', fontSize: '12px', fontWeight: '600',
+            cursor: sessionActive ? 'pointer' : 'not-allowed', opacity: sessionActive ? 1 : 0.5,
           }}
         >
           End session
@@ -118,40 +157,26 @@ export default function FocusTimerWidget() {
 
       {/* Ambient Sound Bar */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: 'rgba(0, 0, 0, 0.25)',
-        padding: '6px 10px',
-        borderRadius: '8px'
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(0, 0, 0, 0.25)', padding: '6px 10px', borderRadius: '8px',
       }}>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <span style={{ fontSize: '10px', color: '#8b8ea9' }}>Ambient:</span>
+        <div style={{ display: 'flex', gap: '4px' }}>
           {sounds.map((s) => (
             <button
               key={s.id}
+              title={s.title}
               onClick={() => setActiveSound(activeSound === s.id ? null : s.id)}
               style={{
                 background: activeSound === s.id ? 'rgba(99, 91, 255, 0.4)' : 'transparent',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '2px 4px',
-                fontSize: '13px',
-                cursor: 'pointer'
+                border: 'none', borderRadius: '4px', padding: '2px 4px',
+                fontSize: '13px', cursor: 'pointer',
               }}
             >
               {s.label}
             </button>
           ))}
         </div>
-
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          style={{ width: '50px', accentColor: '#635bff', cursor: 'pointer' }}
-        />
       </div>
     </div>
   );
