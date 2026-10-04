@@ -3599,6 +3599,416 @@ body {
 .progress-company-cat    { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 1px; }
 .progress-readiness-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); margin-top: 4px; }
 
+/* ── Sidebar Shaded Vibrant Purple Styling ── */
+.sidebar-purple-container {
+  width: 230px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #4d3be6 0%, #3e2cc7 100%);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+}
+
+.sidebar-logo-white-pill {
+  background: #110e26;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon-purple {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #5b46f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.logo-text-dark {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.sidebar-user-dark-card {
+  background: #110e26;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 14px;
+}
+
+.sidebar-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #5b46f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-sub {
+  font-size: 10px;
+  color: #8c8aa8;
+}
+
+.sidebar-nav-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.sidebar-dark-pill {
+  background: #151230;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.sidebar-dark-pill:hover {
+  background: #1a173b;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.sidebar-dark-pill.active {
+  background: #1b173e;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-pill-badge {
+  background: #5b46f6;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+.sidebar-footer-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+/* ── Topbar Clean Layout ── */
+.topbar-clean-container {
+  height: 56px;
+  background: #0b0a16;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+}
+
+.topbar-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.topbar-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-page-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.live-sync-pill {
+  background: #151230;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #dbe0ea;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.topbar-search-pill, .company-search-pill {
+  background: #151230;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 320px;
+}
+
+.topbar-search-pill input, .company-search-pill input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 12px;
+  width: 100%;
+}
+
+.topbar-search-pill input::placeholder, .company-search-pill input::placeholder {
+  color: #6b698b;
+}
+
+.topbar-right-badge {
+  background: #151230;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #dbe0ea;
+}
+
+/* ── Companies Hero & Stat Cards ── */
+.hero-pill-subhead {
+  color: #8172ff;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  font-size: 11px;
+}
+
+.hero-stat-box-dark {
+  background: #171433;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 18px;
+}
+
+.hero-stat-box-purple {
+  background: #5b46f6;
+  border-radius: 14px;
+  padding: 12px 18px;
+  box-shadow: 0 6px 20px rgba(91, 70, 246, 0.35);
+}
+
+.stat-box-label {
+  font-size: 11px;
+  color: #9c9ab8;
+  margin-bottom: 2px;
+}
+
+.stat-box-label-light {
+  font-size: 11px;
+  color: #d6d1ff;
+  margin-bottom: 2px;
+}
+
+.stat-box-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.stat-box-value-white {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* ── Category Filter Pills ── */
+.category-filter-pill {
+  background: #171433;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.category-filter-pill:hover {
+  background: #1f1b42;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.category-filter-pill.active {
+  background: #5b46f6;
+  border-color: #5b46f6;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(91, 70, 246, 0.35);
+}
+
+/* ── Company Cards Grid ── */
+.company-dir-card {
+  background: #120f26;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.company-dir-card:hover {
+  border-color: rgba(91, 70, 246, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+.company-initial-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #5b46f6;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.company-target-badge {
+  background: #171433;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.company-target-badge.active {
+  background: #5b46f6;
+  border-color: #5b46f6;
+  color: #ffffff;
+}
+
+.company-spec-pill {
+  background: #171433;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.readiness-track {
+  width: 100%;
+  height: 6px;
+  background: #201d42;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.readiness-fill {
+  height: 100%;
+  background: #5b46f6;
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.focus-topic-chip {
+  background: #171433;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+.company-cta-button {
+  width: 100%;
+  background: #5b46f6;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 16px rgba(91, 70, 246, 0.35);
+}
+
+.company-cta-button:hover {
+  background: #4c38f5;
+  box-shadow: 0 6px 22px rgba(91, 70, 246, 0.55);
+}
+
+
 
 
 

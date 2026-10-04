@@ -4,21 +4,20 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
-  { label: 'Dashboard',      href: '/',          badge: null },
-  { label: 'Placement Prep', href: '/prep',       badge: '5' },
+  { label: 'Dashboard', href: '/', badge: null },
+  { label: 'Placement Prep', href: '/prep', badge: '5' },
   { label: 'Coding Workspace', href: '/workspace', badge: '3' },
-  { label: 'Companies',      href: '/companies',  badge: '18+' },
-  { label: 'Assessments',    href: '/assessments', badge: null },
-  { label: 'Interviews',     href: '/interviews',  badge: null },
-  { label: 'Progress',       href: '/progress',    badge: null },
-  { label: 'Profile',        href: '/portfolio',   badge: null },
+  { label: 'Companies', href: '/companies', badge: '18+' },
+  { label: 'Assessments', href: '/assessments', badge: null },
+  { label: 'Interviews', href: '/interviews', badge: null },
+  { label: 'Progress', href: '/progress', badge: null },
+  { label: 'Profile', href: '/portfolio', badge: null },
 ];
 
 const footerItems = [
-  { label: 'Uni Hub',      href: '/uni-hub' },
-  { label: 'Virtual Lib',  href: '/virtual-lib' },
-  { label: 'Settings',     href: '/settings' },
-  { label: 'AI Assistant',  href: '/ai' },
+  { label: 'Uni Hub', href: '/uni-hub' },
+  { label: 'Virtual Lib', href: '/virtual-lib' },
+  { label: 'Settings', href: '/settings' },
 ];
 
 export default function Sidebar() {
@@ -27,17 +26,13 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar-purple-container">
-      {/* Top Logo White Pill */}
+      {/* Top Logo Box */}
       <div className="sidebar-logo-white-pill">
-        <div className="logo-icon-purple">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B46F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-        </div>
+        <div className="logo-icon-purple">P</div>
         <span className="logo-text-dark">PlacementHub</span>
       </div>
 
-      {/* User Card Profile Box inside Purple Sidebar */}
+      {/* User Card Profile Box */}
       <div className="sidebar-user-dark-card">
         <div className="sidebar-user-avatar">{user?.avatar || 'AC'}</div>
         <div className="sidebar-user-info">
@@ -81,5 +76,6 @@ export default function Sidebar() {
     </aside>
   );
 }
+
 
 
