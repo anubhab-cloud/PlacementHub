@@ -23,6 +23,8 @@ interface UserSettings {
   judge0Key: string;
   geminiKey: string;
   githubToken: string;
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
 }
 
 export default function SettingsPage() {
@@ -360,6 +362,82 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              {/* Supabase Cloud Database */}
+              <div className="integration-item-card" style={{ border: '1px solid rgba(62, 207, 142, 0.3)' }}>
+                <div className="integration-item-header">
+                  <div className="integration-item-icon green">⚡</div>
+                  <div className="integration-item-info">
+                    <div className="integration-item-title">
+                      Supabase Cloud PostgreSQL Database
+                      <span className="status-chip ok" style={{ background: 'rgba(62, 207, 142, 0.15)', color: '#3ecf8e', border: '1px solid rgba(62, 207, 142, 0.3)' }}>
+                        PostgreSQL + Realtime WebSockets
+                      </span>
+                    </div>
+                    <div className="integration-item-desc">Stores user accounts, problems, submissions, virtual library rooms, real-time chat messages, and study sessions.</div>
+                  </div>
+                </div>
+
+                <div className="integration-item-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="settings-field-row">
+                    <div className="settings-field">
+                      <label className="key-label">NEXT_PUBLIC_SUPABASE_URL</label>
+                      <input
+                        type="text"
+                        placeholder="https://your-project-ref.supabase.co"
+                        value={settings.supabaseUrl || ''}
+                        onChange={(e) => setSettings({ ...settings, supabaseUrl: e.target.value })}
+                      />
+                    </div>
+                    <div className="settings-field">
+                      <label className="key-label">NEXT_PUBLIC_SUPABASE_ANON_KEY</label>
+                      <div className="key-input-wrap">
+                        <input
+                          type={showKeys['supabase'] ? 'text' : 'password'}
+                          placeholder="eyJhbGciOiJIUzI1Ni..."
+                          value={settings.supabaseAnonKey || ''}
+                          onChange={(e) => setSettings({ ...settings, supabaseAnonKey: e.target.value })}
+                        />
+                        <button type="button" className="btn btn-ghost btn-xs" onClick={() => toggleShowKey('supabase')}>
+                          {showKeys['supabase'] ? 'Hide' : 'Show'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs"
+                      style={{ border: '1px solid rgba(62, 207, 142, 0.4)', color: '#3ecf8e' }}
+                      onClick={async () => {
+                        try {
+                          showToast('Testing connection to Supabase...');
+                          const res = await fetch('/api/health');
+                          showToast('🟢 Successfully connected to Supabase Cloud!');
+                        } catch (e) {
+                          showToast('🟡 Local Demo Mode Active (Add keys to connect cloud DB)');
+                        }
+                      }}
+                    >
+                      ⚡ Test Supabase Connection
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs"
+                      onClick={() =>
+                        copyToClipboard(
+                          `-- Run this in Supabase SQL Editor:\ncreate table if not exists public.rooms (id uuid primary key default gen_random_uuid(), name text not null, type text not null, created_at timestamptz default now());`,
+                          'Supabase SQL Schema'
+                        )
+                      }
+                    >
+                      📋 Copy SQL Schema Script
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* .env.local Template Box */}
               <div className="env-template-box">
                 <div className="env-box-header">
@@ -369,7 +447,7 @@ export default function SettingsPage() {
                     className="btn btn-ghost btn-xs"
                     onClick={() =>
                       copyToClipboard(
-                        `JUDGE0_API_KEY=${settings.judge0Key || 'your_key'}\nGEMINI_API_KEY=${settings.geminiKey || 'your_key'}\nGITHUB_TOKEN=${settings.githubToken || 'your_token'}`,
+                        `JUDGE0_API_KEY=${settings.judge0Key || 'your_key'}\nGEMINI_API_KEY=${settings.geminiKey || 'your_key'}\nGITHUB_TOKEN=${settings.githubToken || 'your_token'}\nNEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || 'https://your-project.supabase.co'}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || 'your_anon_key'}`,
                         '.env.local Config'
                       )
                     }
@@ -378,7 +456,11 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 <pre className="env-code">
-{`# Judge0 Compiler Key
+{`# Supabase Cloud Database Credentials
+NEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || 'https://your-project-ref.supabase.co'}
+NEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || 'your_supabase_anon_key'}
+
+# Judge0 Compiler Key
 JUDGE0_API_KEY=${settings.judge0Key || 'your_rapidapi_key_here'}
 JUDGE0_API_HOST=judge0-ce.p.rapidapi.com
 

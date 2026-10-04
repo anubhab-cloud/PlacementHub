@@ -4,15 +4,19 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
-  { label: 'Dashboard',      href: '/',         badge: null },
-  { label: 'Code Workspace', href: '/workspace', badge: '3' },
-  { label: 'Uni Hub',        href: '/uni-hub',   badge: null },
-  { label: 'Placement',      href: '/placement', badge: null },
-  { label: 'Portfolio',      href: '/portfolio', badge: null },
-  { label: 'Library',        href: '/library',   badge: '2' },
+  { label: 'Dashboard',      href: '/',          badge: null },
+  { label: 'Placement Prep', href: '/prep',       badge: '5' },
+  { label: 'Coding Workspace', href: '/workspace', badge: '3' },
+  { label: 'Companies',      href: '/companies',  badge: '18+' },
+  { label: 'Assessments',    href: '/assessments', badge: null },
+  { label: 'Interviews',     href: '/interviews',  badge: null },
+  { label: 'Progress',       href: '/progress',    badge: null },
+  { label: 'Profile',        href: '/portfolio',   badge: null },
 ];
 
 const footerItems = [
+  { label: 'Uni Hub',      href: '/uni-hub' },
+  { label: 'Virtual Lib',  href: '/virtual-lib' },
   { label: 'Settings',     href: '/settings' },
   { label: 'AI Assistant',  href: '/ai' },
 ];
@@ -45,7 +49,7 @@ export default function Sidebar() {
       {/* Main Nav Pills */}
       <nav className="sidebar-nav-pills">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
@@ -62,7 +66,7 @@ export default function Sidebar() {
       {/* Footer Nav Pills */}
       <div className="sidebar-footer-pills">
         {footerItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
@@ -77,4 +81,5 @@ export default function Sidebar() {
     </aside>
   );
 }
+
 

@@ -9,15 +9,22 @@ export default function Topbar() {
   const { user } = useAuth();
 
   const getTitle = () => {
+    if (pathname.startsWith('/prep')) return 'Placement Prep';
+    if (pathname.startsWith('/companies')) return 'Company Directory';
+    if (pathname.startsWith('/assessments')) return 'Assessments & Tests';
+    if (pathname.startsWith('/interviews')) return 'Interview Practice';
+    if (pathname.startsWith('/progress')) return 'Progress & Analytics';
+
     switch (pathname) {
-      case '/workspace': return 'Code Workspace';
-      case '/uni-hub':   return 'Uni Hub';
-      case '/placement': return 'Placement';
-      case '/portfolio': return 'Portfolio';
-      case '/library':   return 'Library';
-      case '/settings':  return 'Settings';
-      case '/ai':        return 'AI Assistant';
-      default:           return 'Dashboard';
+      case '/workspace':   return 'Code Workspace';
+      case '/uni-hub':     return 'Uni Hub';
+      case '/placement':   return 'Placement Hub';
+      case '/portfolio':   return 'Profile & Portfolio';
+      case '/virtual-lib':
+      case '/library':     return 'Virtual Lib';
+      case '/settings':    return 'Settings';
+      case '/ai':          return 'AI Assistant';
+      default:             return 'Dashboard';
     }
   };
 
