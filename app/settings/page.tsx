@@ -1,626 +1,1116 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
-type TabType = 'profile' | 'integrations' | 'preferences' | 'security';
+// ─── TYPES ───────────────────────────────────────────────────────
+type TabId =
+  | 'basicinfo'
+  | 'coding'
+  | 'social'
+  | 'education'
+  | 'skills'
+  | 'preferences'
+  | 'integrations'
+  | 'security';
 
 interface UserSettings {
+  // Basic Info
   name: string;
-  email: string;
   username: string;
+  email: string;
   bio: string;
+  college: string;
+  graduationYear: string;
+  location: string;
+  website: string;
   targetRole: string;
-  targetCompany: string;
+  targetCompanies: string;
+  // Coding
   githubUser: string;
   leetcodeUser: string;
+  codeforcesUser: string;
+  codechefUser: string;
+  gfgUser: string;
+  // Social
   linkedinUrl: string;
+  twitterUrl: string;
+  portfolioUrl: string;
+  // Skills
+  skills: string;
+  // Preferences
   primaryLang: string;
   editorTheme: string;
   autoSaveCode: boolean;
   dailyReminder: boolean;
   aiCoachingLevel: string;
+  // Integrations
   judge0Key: string;
   geminiKey: string;
   githubToken: string;
-  supabaseUrl?: string;
-  supabaseAnonKey?: string;
+  supabaseUrl: string;
+  supabaseAnonKey: string;
 }
 
+const DEFAULT_SETTINGS: UserSettings = {
+  name: 'Anubhab Chakraborty',
+  username: 'anubhab-cloud',
+  email: 'anubhab@nexusprep.io',
+  bio: 'CS Student & Competitive Programmer targeting SDE-1 roles.',
+  college: '',
+  graduationYear: '2025',
+  location: '',
+  website: '',
+  targetRole: 'Software Development Engineer (SDE-1)',
+  targetCompanies: 'Google, Microsoft, Meta',
+  githubUser: 'anubhab-cloud',
+  leetcodeUser: 'anubhab_dev',
+  codeforcesUser: '',
+  codechefUser: '',
+  gfgUser: '',
+  linkedinUrl: 'https://linkedin.com/in/anubhab-chakraborty',
+  twitterUrl: '',
+  portfolioUrl: '',
+  skills: 'C++, Python, React, Node.js, SQL, DSA, System Design',
+  primaryLang: 'cpp',
+  editorTheme: 'vs-dark',
+  autoSaveCode: true,
+  dailyReminder: true,
+  aiCoachingLevel: 'proactive',
+  judge0Key: '',
+  geminiKey: '',
+  githubToken: '',
+  supabaseUrl: '',
+  supabaseAnonKey: '',
+};
+
+// ─── TABS CONFIG ─────────────────────────────────────────────────
+const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
+  {
+    id: 'basicinfo',
+    label: 'Basic Info',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+      </svg>
+    ),
+  },
+  {
+    id: 'coding',
+    label: 'Coding Profiles',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+      </svg>
+    ),
+  },
+  {
+    id: 'social',
+    label: 'Social Links',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      </svg>
+    ),
+  },
+  {
+    id: 'education',
+    label: 'Education',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
+      </svg>
+    ),
+  },
+  {
+    id: 'skills',
+    label: 'Skills',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
+  },
+  {
+    id: 'preferences',
+    label: 'Preferences',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'integrations',
+    label: 'Integrations',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+      </svg>
+    ),
+  },
+  {
+    id: 'security',
+    label: 'Security',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+    ),
+  },
+];
+
+// ─── FIELD COMPONENTS ─────────────────────────────────────────────
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <label style={{ fontSize: '13px', fontWeight: '500', color: '#e2e8f0', letterSpacing: '0.01em' }}>
+        {label}
+      </label>
+      {children}
+      {hint && (
+        <span style={{ fontSize: '11px', color: '#64748b' }}>{hint}</span>
+      )}
+    </div>
+  );
+}
+
+function TextInput({
+  value,
+  onChange,
+  placeholder,
+  type = 'text',
+  prefix,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  type?: string;
+  prefix?: string;
+}) {
+  const inputStyle: React.CSSProperties = {
+    background: '#161b22',
+    border: '1px solid #2d333b',
+    borderRadius: '8px',
+    color: '#e2e8f0',
+    fontSize: '13px',
+    padding: prefix ? '10px 12px 10px 0' : '10px 12px',
+    outline: 'none',
+    width: '100%',
+    flex: 1,
+    transition: 'border-color 0.15s ease',
+  };
+  if (prefix) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        background: '#161b22', border: '1px solid #2d333b', borderRadius: '8px', overflow: 'hidden',
+      }}>
+        <span style={{
+          padding: '10px 10px 10px 12px', color: '#64748b', fontSize: '13px',
+          borderRight: '1px solid #2d333b', background: '#0d1117', whiteSpace: 'nowrap',
+        }}>
+          {prefix}
+        </span>
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          style={{ ...inputStyle, borderRadius: 0, border: 'none', paddingLeft: '10px' }}
+        />
+      </div>
+    );
+  }
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={inputStyle}
+    />
+  );
+}
+
+function Textarea({
+  value,
+  onChange,
+  placeholder,
+  rows = 4,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  rows?: number;
+}) {
+  return (
+    <textarea
+      rows={rows}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        background: '#161b22', border: '1px solid #2d333b', borderRadius: '8px',
+        color: '#e2e8f0', fontSize: '13px', padding: '10px 12px',
+        outline: 'none', width: '100%', resize: 'vertical', fontFamily: 'inherit',
+        lineHeight: '1.5',
+      }}
+    />
+  );
+}
+
+function SelectInput({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        background: '#161b22', border: '1px solid #2d333b', borderRadius: '8px',
+        color: '#e2e8f0', fontSize: '13px', padding: '10px 12px', outline: 'none', width: '100%',
+      }}
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  );
+}
+
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      style={{
+        width: '40px', height: '22px', borderRadius: '11px', border: 'none',
+        background: checked ? '#5b46f6' : '#2d333b',
+        cursor: 'pointer', position: 'relative', flexShrink: 0,
+        transition: 'background 0.2s ease',
+      }}
+    >
+      <span style={{
+        position: 'absolute', top: '3px',
+        left: checked ? '21px' : '3px',
+        width: '16px', height: '16px', borderRadius: '50%',
+        background: '#ffffff', transition: 'left 0.2s ease',
+        display: 'block',
+      }} />
+    </button>
+  );
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  showKey,
+  onToggleShow,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  showKey: boolean;
+  onToggleShow: () => void;
+}) {
+  return (
+    <Field label={label}>
+      <div style={{ position: 'relative' }}>
+        <input
+          type={showKey ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          style={{
+            background: '#161b22', border: '1px solid #2d333b', borderRadius: '8px',
+            color: '#e2e8f0', fontSize: '13px', padding: '10px 80px 10px 12px',
+            outline: 'none', width: '100%',
+          }}
+        />
+        <button
+          type="button"
+          onClick={onToggleShow}
+          style={{
+            position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+            background: 'none', border: 'none', color: '#5b46f6', fontSize: '12px',
+            fontWeight: '600', cursor: 'pointer', padding: '4px 8px',
+          }}
+        >
+          {showKey ? 'Hide' : 'Show'}
+        </button>
+      </div>
+    </Field>
+  );
+}
+
+function SectionTitle({ title, desc }: { title: string; desc?: string }) {
+  return (
+    <div style={{ marginBottom: '24px' }}>
+      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#ffffff', marginBottom: '4px' }}>
+        {title}
+      </h3>
+      {desc && <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>{desc}</p>}
+    </div>
+  );
+}
+
+function SaveButton({ onClick, label = 'Save Changes' }: { onClick: () => void; label?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        marginTop: '8px',
+        padding: '10px 24px',
+        background: '#5b46f6',
+        border: 'none',
+        borderRadius: '8px',
+        color: '#ffffff',
+        fontSize: '13px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'opacity 0.15s ease',
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ─── MAIN PAGE ───────────────────────────────────────────────────
 export default function SettingsPage() {
   const { user, login } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('profile');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>('basicinfo');
+  const [toast, setToast] = useState<string | null>(null);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
+  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+  const [saved, setSaved] = useState(false);
 
-  const [settings, setSettings] = useState<UserSettings>({
-    name: user?.name || 'Anubhab Chakraborty',
-    email: user?.email || 'anubhab@nexusprep.io',
-    username: 'anubhab-cloud',
-    bio: 'CS Student & Competitive Programmer targeting SDE 1 roles.',
-    targetRole: 'Software Development Engineer (SDE-1)',
-    targetCompany: 'Google, Microsoft, Meta',
-    githubUser: 'anubhab-cloud',
-    leetcodeUser: 'anubhab_dev',
-    linkedinUrl: 'https://linkedin.com/in/anubhab-chakraborty',
-    primaryLang: 'cpp',
-    editorTheme: 'vs-dark',
-    autoSaveCode: true,
-    dailyReminder: true,
-    aiCoachingLevel: 'proactive',
-    judge0Key: '',
-    geminiKey: '',
-    githubToken: '',
-  });
-
-  // Sync user details on load
   useEffect(() => {
     if (user) {
       setSettings((prev) => ({
         ...prev,
-        name: user.name,
-        email: user.email,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
       }));
     }
-    const saved = localStorage.getItem('placementhub_settings');
-    if (saved) {
-      try {
-        setSettings((prev) => ({ ...prev, ...JSON.parse(saved) }));
-      } catch (e) {
-        // use default
-      }
+    const raw = localStorage.getItem('placementhub_settings');
+    if (raw) {
+      try { setSettings((prev) => ({ ...prev, ...JSON.parse(raw) })); } catch {}
     }
   }, [user]);
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
   };
 
-  const handleSave = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSave = () => {
     localStorage.setItem('placementhub_settings', JSON.stringify(settings));
-    login(settings.email, settings.name);
-    showToast('✨ Settings updated successfully!');
+    if (user) login(settings.email, settings.name);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+    showToast('Changes saved successfully!');
   };
 
-  const toggleShowKey = (keyName: string) => {
-    setShowKeys((prev) => ({ ...prev, [keyName]: !prev[keyName] }));
-  };
+  const set = (key: keyof UserSettings, value: any) =>
+    setSettings((prev) => ({ ...prev, [key]: value }));
 
-  const copyToClipboard = (text: string, label: string) => {
+  const toggleKey = (k: string) =>
+    setShowKeys((prev) => ({ ...prev, [k]: !prev[k] }));
+
+  const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    showToast(`📋 ${label} copied to clipboard!`);
+    showToast(`Copied ${label}!`);
   };
+
+  // Avatar initials
+  const initials = settings.name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="settings-page-container">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="settings-toast-banner">
-          <span>{toastMessage}</span>
+    <div style={{
+      minHeight: '100vh',
+      background: '#0d1117',
+      color: '#e2e8f0',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+    }}>
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: '20px', right: '20px', zIndex: 1000,
+          background: '#1c2128', border: '1px solid #30363d',
+          borderRadius: '10px', padding: '12px 20px',
+          fontSize: '13px', color: '#e2e8f0',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', gap: '10px',
+          animation: 'fadeIn 0.2s ease',
+        }}>
+          <span style={{ color: '#5b46f6' }}>✓</span>
+          {toast}
         </div>
       )}
 
-      {/* Header */}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">
-            ⚙ Account <span className="glow-text-violet">Settings</span>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px' }}>
+        {/* Page Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#ffffff', marginBottom: '4px' }}>
+            Edit Profile
           </h1>
-          <p className="page-subtitle">Manage your profile, API keys, platform preferences, and integrations</p>
-        </div>
-        <button className="btn btn-violet" onClick={() => handleSave()}>
-          Save All Changes
-        </button>
-      </div>
-
-      {/* Main Settings Card Layout */}
-      <div className="settings-layout-card">
-        {/* Settings Navigation Tabs */}
-        <div className="settings-nav-sidebar">
-          <button
-            className={`settings-nav-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-            </svg>
-            Profile & Bio
-          </button>
-          <button
-            className={`settings-nav-btn ${activeTab === 'integrations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('integrations')}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-            API & Integrations
-          </button>
-          <button
-            className={`settings-nav-btn ${activeTab === 'preferences' ? 'active' : ''}`}
-            onClick={() => setActiveTab('preferences')}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            Workspace Preferences
-          </button>
-          <button
-            className={`settings-nav-btn ${activeTab === 'security' ? 'active' : ''}`}
-            onClick={() => setActiveTab('security')}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            Security & Account
-          </button>
+          <p style={{ fontSize: '13px', color: '#64748b' }}>
+            Manage your public profile, coding handles, integrations, and preferences.
+          </p>
         </div>
 
-        {/* Settings Tab Content */}
-        <div className="settings-content-area">
-          {/* TAB 1: PROFILE & BIO */}
-          {activeTab === 'profile' && (
-            <form onSubmit={handleSave} className="settings-form-grid">
-              <div className="settings-section-header">
-                <h3 className="settings-section-title">Personal Information</h3>
-                <p className="settings-section-desc">Update your name, bio, and target interview goals.</p>
-              </div>
-
-              {/* Avatar Preview Row */}
-              <div className="settings-avatar-row">
-                <div className="settings-big-avatar">{settings.name.slice(0, 2).toUpperCase()}</div>
-                <div>
-                  <div className="avatar-title">{settings.name}</div>
-                  <div className="avatar-subtitle">Pro Aspirant · PlacementHub Verified</div>
-                  <button type="button" className="btn btn-ghost btn-xs mt-2" onClick={() => showToast('Avatar is auto-generated from your initials!')}>
-                    Change Avatar
-                  </button>
-                </div>
-              </div>
-
-              <div className="settings-field-row">
-                <div className="settings-field">
-                  <label>Full Name</label>
-                  <input
-                    type="text"
-                    value={settings.name}
-                    onChange={(e) => setSettings({ ...settings, name: e.target.value })}
-                  />
-                </div>
-                <div className="settings-field">
-                  <label>Email Address</label>
-                  <input
-                    type="email"
-                    value={settings.email}
-                    onChange={(e) => setSettings({ ...settings, email: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="settings-field-row">
-                <div className="settings-field">
-                  <label>Target Role</label>
-                  <input
-                    type="text"
-                    placeholder="SDE 1 / Full Stack Engineer"
-                    value={settings.targetRole}
-                    onChange={(e) => setSettings({ ...settings, targetRole: e.target.value })}
-                  />
-                </div>
-                <div className="settings-field">
-                  <label>Target Companies</label>
-                  <input
-                    type="text"
-                    placeholder="Google, Microsoft, Amazon"
-                    value={settings.targetCompany}
-                    onChange={(e) => setSettings({ ...settings, targetCompany: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="settings-field">
-                <label>Bio / Summary</label>
-                <textarea
-                  rows={3}
-                  value={settings.bio}
-                  onChange={(e) => setSettings({ ...settings, bio: e.target.value })}
-                  placeholder="Tell recruiters and peers about your tech stack and goals..."
-                />
-              </div>
-
-              <div className="settings-section-header mt-4">
-                <h3 className="settings-section-title">Coding Handles & Social Profiles</h3>
-                <p className="settings-section-desc">Link your LeetCode and GitHub to enable automatic portfolio sync.</p>
-              </div>
-
-              <div className="settings-field-row">
-                <div className="settings-field">
-                  <label>GitHub Username</label>
-                  <div className="input-prefix-wrap">
-                    <span className="input-prefix">github.com/</span>
-                    <input
-                      type="text"
-                      value={settings.githubUser}
-                      onChange={(e) => setSettings({ ...settings, githubUser: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="settings-field">
-                  <label>LeetCode Username</label>
-                  <div className="input-prefix-wrap">
-                    <span className="input-prefix">leetcode.com/</span>
-                    <input
-                      type="text"
-                      value={settings.leetcodeUser}
-                      onChange={(e) => setSettings({ ...settings, leetcodeUser: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-action-bar">
-                <button type="submit" className="btn btn-violet">
-                  Save Profile Settings
+        {/* Two-column Layout: Left Nav + Right Content */}
+        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'start' }}>
+          {/* ── LEFT SIDEBAR ── */}
+          <div style={{
+            background: '#161b22',
+            border: '1px solid #21262d',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            position: 'sticky',
+            top: '24px',
+          }}>
+            {TABS.map((tab, i) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    width: '100%', textAlign: 'left', border: 'none',
+                    padding: '13px 16px', display: 'flex', alignItems: 'center', gap: '10px',
+                    fontSize: '13px', fontWeight: isActive ? '600' : '400',
+                    color: isActive ? '#ffffff' : '#8b949e',
+                    cursor: 'pointer', position: 'relative',
+                    borderLeft: `3px solid ${isActive ? '#5b46f6' : 'transparent'}`,
+                    borderBottom: i < TABS.length - 1 ? '1px solid #21262d' : 'none',
+                    transition: 'all 0.15s ease',
+                    background: isActive ? 'rgba(91, 70, 246, 0.08)' : 'transparent',
+                  } as React.CSSProperties}
+                >
+                  <span style={{ color: isActive ? '#5b46f6' : '#64748b', flexShrink: 0 }}>
+                    {tab.icon}
+                  </span>
+                  {tab.label}
                 </button>
-              </div>
-            </form>
-          )}
+              );
+            })}
+          </div>
 
-          {/* TAB 2: API INTEGRATIONS */}
-          {activeTab === 'integrations' && (
-            <div className="settings-form-grid">
-              <div className="settings-section-header">
-                <h3 className="settings-section-title">Integrations & API Credentials</h3>
-                <p className="settings-section-desc">
-                  Configure API keys to enable code compilation, AI coaching, and automatic GitHub pushes.
-                </p>
-              </div>
+          {/* ── RIGHT CONTENT ── */}
+          <div style={{
+            background: '#161b22',
+            border: '1px solid #21262d',
+            borderRadius: '12px',
+            padding: '32px',
+          }}>
+            {/* ── TAB: BASIC INFO ── */}
+            {activeTab === 'basicinfo' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Basic Information"
+                  desc="This information will appear on your public PlacementHub profile."
+                />
 
-              {/* Judge0 API Key */}
-              <div className="integration-item-card">
-                <div className="integration-item-header">
-                  <div className="integration-item-icon cyan">⚙</div>
-                  <div className="integration-item-info">
-                    <div className="integration-item-title">
-                      Judge0 Code Execution API
-                      <span className="status-chip ok">Active Ready</span>
+                {/* Avatar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px', background: '#0d1117', borderRadius: '10px', border: '1px solid #21262d' }}>
+                  <div style={{
+                    width: '72px', height: '72px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #5b46f6, #8b5cf6)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '24px', fontWeight: '700', color: '#ffffff',
+                    flexShrink: 0,
+                  }}>
+                    {initials}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#ffffff', marginBottom: '2px' }}>
+                      {settings.name || 'Your Name'}
                     </div>
-                    <div className="integration-item-desc">Executes C++, Java, Python, and JavaScript in sandbox.</div>
-                  </div>
-                </div>
-                <div className="integration-item-body">
-                  <label className="key-label">JUDGE0_API_KEY (RapidAPI)</label>
-                  <div className="key-input-wrap">
-                    <input
-                      type={showKeys['judge0'] ? 'text' : 'password'}
-                      placeholder="Paste Judge0 RapidAPI Key..."
-                      value={settings.judge0Key}
-                      onChange={(e) => setSettings({ ...settings, judge0Key: e.target.value })}
-                    />
-                    <button type="button" className="btn btn-ghost btn-xs" onClick={() => toggleShowKey('judge0')}>
-                      {showKeys['judge0'] ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Gemini AI Key */}
-              <div className="integration-item-card">
-                <div className="integration-item-header">
-                  <div className="integration-item-icon violet">🤖</div>
-                  <div className="integration-item-info">
-                    <div className="integration-item-title">
-                      Google Gemini AI Key
-                      <span className="status-chip ok">Demo Mode Active</span>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>
+                      @{settings.username || 'username'} · PlacementHub Verified
                     </div>
-                    <div className="integration-item-desc">Powers the floating personal coach and mock interview agent.</div>
-                  </div>
-                </div>
-                <div className="integration-item-body">
-                  <label className="key-label">GEMINI_API_KEY (Google AI Studio)</label>
-                  <div className="key-input-wrap">
-                    <input
-                      type={showKeys['gemini'] ? 'text' : 'password'}
-                      placeholder="AIzaSy..."
-                      value={settings.geminiKey}
-                      onChange={(e) => setSettings({ ...settings, geminiKey: e.target.value })}
-                    />
-                    <button type="button" className="btn btn-ghost btn-xs" onClick={() => toggleShowKey('gemini')}>
-                      {showKeys['gemini'] ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* GitHub Personal Access Token */}
-              <div className="integration-item-card">
-                <div className="integration-item-header">
-                  <div className="integration-item-icon green">🐙</div>
-                  <div className="integration-item-info">
-                    <div className="integration-item-title">
-                      GitHub Auto-Push Token
-                      <span className="status-chip ok">Connected</span>
-                    </div>
-                    <div className="integration-item-desc">Automatically commits solved problems to your repository.</div>
-                  </div>
-                </div>
-                <div className="integration-item-body">
-                  <label className="key-label">GITHUB_TOKEN (Personal Access Token)</label>
-                  <div className="key-input-wrap">
-                    <input
-                      type={showKeys['github'] ? 'text' : 'password'}
-                      placeholder="ghp_..."
-                      value={settings.githubToken}
-                      onChange={(e) => setSettings({ ...settings, githubToken: e.target.value })}
-                    />
-                    <button type="button" className="btn btn-ghost btn-xs" onClick={() => toggleShowKey('github')}>
-                      {showKeys['github'] ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Supabase Cloud Database */}
-              <div className="integration-item-card" style={{ border: '1px solid rgba(62, 207, 142, 0.3)' }}>
-                <div className="integration-item-header">
-                  <div className="integration-item-icon green">⚡</div>
-                  <div className="integration-item-info">
-                    <div className="integration-item-title">
-                      Supabase Cloud PostgreSQL Database
-                      <span className="status-chip ok" style={{ background: 'rgba(62, 207, 142, 0.15)', color: '#3ecf8e', border: '1px solid rgba(62, 207, 142, 0.3)' }}>
-                        PostgreSQL + Realtime WebSockets
-                      </span>
-                    </div>
-                    <div className="integration-item-desc">Stores user accounts, problems, submissions, virtual library rooms, real-time chat messages, and study sessions.</div>
-                  </div>
-                </div>
-
-                <div className="integration-item-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div className="settings-field-row">
-                    <div className="settings-field">
-                      <label className="key-label">NEXT_PUBLIC_SUPABASE_URL</label>
-                      <input
-                        type="text"
-                        placeholder="https://your-project-ref.supabase.co"
-                        value={settings.supabaseUrl || ''}
-                        onChange={(e) => setSettings({ ...settings, supabaseUrl: e.target.value })}
-                      />
-                    </div>
-                    <div className="settings-field">
-                      <label className="key-label">NEXT_PUBLIC_SUPABASE_ANON_KEY</label>
-                      <div className="key-input-wrap">
-                        <input
-                          type={showKeys['supabase'] ? 'text' : 'password'}
-                          placeholder="eyJhbGciOiJIUzI1Ni..."
-                          value={settings.supabaseAnonKey || ''}
-                          onChange={(e) => setSettings({ ...settings, supabaseAnonKey: e.target.value })}
-                        />
-                        <button type="button" className="btn btn-ghost btn-xs" onClick={() => toggleShowKey('supabase')}>
-                          {showKeys['supabase'] ? 'Hide' : 'Show'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <button
                       type="button"
-                      className="btn btn-ghost btn-xs"
-                      style={{ border: '1px solid rgba(62, 207, 142, 0.4)', color: '#3ecf8e' }}
-                      onClick={async () => {
-                        try {
-                          showToast('Testing connection to Supabase...');
-                          const res = await fetch('/api/health');
-                          showToast('🟢 Successfully connected to Supabase Cloud!');
-                        } catch (e) {
-                          showToast('🟡 Local Demo Mode Active (Add keys to connect cloud DB)');
-                        }
+                      onClick={() => showToast('Avatar is auto-generated from your initials')}
+                      style={{
+                        padding: '5px 12px', borderRadius: '6px',
+                        background: 'transparent', border: '1px solid #30363d',
+                        color: '#8b949e', fontSize: '12px', cursor: 'pointer',
                       }}
                     >
-                      ⚡ Test Supabase Connection
+                      Change Avatar
                     </button>
+                  </div>
+                </div>
 
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <Field label="Full Name">
+                    <TextInput value={settings.name} onChange={(v) => set('name', v)} placeholder="Your full name" />
+                  </Field>
+                  <Field label="Username">
+                    <TextInput value={settings.username} onChange={(v) => set('username', v)} placeholder="your-username" prefix="@" />
+                  </Field>
+                </div>
+
+                <Field label="Email Address">
+                  <TextInput value={settings.email} onChange={(v) => set('email', v)} placeholder="you@example.com" type="email" />
+                </Field>
+
+                <Field label="Bio" hint="Brief description for your public profile. Max 200 chars.">
+                  <Textarea
+                    value={settings.bio}
+                    onChange={(v) => set('bio', v)}
+                    placeholder="CS student targeting SDE roles. Interested in algorithms, system design, and open source."
+                    rows={3}
+                  />
+                </Field>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <Field label="Target Role">
+                    <TextInput value={settings.targetRole} onChange={(v) => set('targetRole', v)} placeholder="Software Engineer, SDE-1..." />
+                  </Field>
+                  <Field label="Target Companies">
+                    <TextInput value={settings.targetCompanies} onChange={(v) => set('targetCompanies', v)} placeholder="Google, Amazon, Microsoft" />
+                  </Field>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <Field label="Location">
+                    <TextInput value={settings.location} onChange={(v) => set('location', v)} placeholder="City, Country" />
+                  </Field>
+                  <Field label="Personal Website">
+                    <TextInput value={settings.website} onChange={(v) => set('website', v)} placeholder="https://yoursite.com" />
+                  </Field>
+                </div>
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: EDUCATION ── */}
+            {activeTab === 'education' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Education"
+                  desc="Your academic background helps companies understand your profile better."
+                />
+
+                <Field label="College / University">
+                  <TextInput value={settings.college} onChange={(v) => set('college', v)} placeholder="IIT Bombay, NIT Trichy, VIT Vellore..." />
+                </Field>
+
+                <Field label="Graduation Year">
+                  <SelectInput
+                    value={settings.graduationYear}
+                    onChange={(v) => set('graduationYear', v)}
+                    options={[
+                      { value: '2024', label: '2024' },
+                      { value: '2025', label: '2025' },
+                      { value: '2026', label: '2026' },
+                      { value: '2027', label: '2027' },
+                      { value: '2028', label: '2028' },
+                    ]}
+                  />
+                </Field>
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: CODING PROFILES ── */}
+            {activeTab === 'coding' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Coding Profiles"
+                  desc="Link your coding platform handles to enable automatic portfolio sync and stats."
+                />
+
+                {[
+                  { label: 'GitHub', key: 'githubUser' as keyof UserSettings, prefix: 'github.com/', placeholder: 'your-username', color: '#6e7681' },
+                  { label: 'LeetCode', key: 'leetcodeUser' as keyof UserSettings, prefix: 'leetcode.com/u/', placeholder: 'your-username', color: '#ffa116' },
+                  { label: 'Codeforces', key: 'codeforcesUser' as keyof UserSettings, prefix: 'codeforces.com/profile/', placeholder: 'your-handle', color: '#1890ff' },
+                  { label: 'CodeChef', key: 'codechefUser' as keyof UserSettings, prefix: 'codechef.com/users/', placeholder: 'your-handle', color: '#5b4638' },
+                  { label: 'GeeksforGeeks', key: 'gfgUser' as keyof UserSettings, prefix: 'geeksforgeeks.org/user/', placeholder: 'your-handle', color: '#2f8d46' },
+                ].map((item) => (
+                  <Field key={item.key} label={item.label}>
+                    <TextInput
+                      value={settings[item.key] as string}
+                      onChange={(v) => set(item.key, v)}
+                      placeholder={item.placeholder}
+                      prefix={item.prefix}
+                    />
+                  </Field>
+                ))}
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: SOCIAL LINKS ── */}
+            {activeTab === 'social' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Social Links"
+                  desc="Add your professional and social profile links."
+                />
+
+                <Field label="LinkedIn">
+                  <TextInput
+                    value={settings.linkedinUrl}
+                    onChange={(v) => set('linkedinUrl', v)}
+                    placeholder="https://linkedin.com/in/your-name"
+                    prefix="linkedin.com/in/"
+                  />
+                </Field>
+
+                <Field label="Twitter / X">
+                  <TextInput
+                    value={settings.twitterUrl}
+                    onChange={(v) => set('twitterUrl', v)}
+                    placeholder="https://x.com/yourhandle"
+                    prefix="x.com/"
+                  />
+                </Field>
+
+                <Field label="Portfolio / Personal Site">
+                  <TextInput
+                    value={settings.portfolioUrl}
+                    onChange={(v) => set('portfolioUrl', v)}
+                    placeholder="https://yourportfolio.dev"
+                  />
+                </Field>
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: SKILLS ── */}
+            {activeTab === 'skills' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Skills"
+                  desc="List your technical skills. These appear as tags on your profile."
+                />
+
+                <Field label="Skills" hint="Comma-separated list of your skills.">
+                  <Textarea
+                    value={settings.skills}
+                    onChange={(v) => set('skills', v)}
+                    placeholder="C++, Python, React, Node.js, SQL, DSA, System Design, Docker, AWS..."
+                    rows={4}
+                  />
+                </Field>
+
+                {/* Tag Preview */}
+                {settings.skills && (
+                  <div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>Preview:</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {settings.skills.split(',').map((s) => s.trim()).filter(Boolean).map((skill) => (
+                        <span key={skill} style={{
+                          padding: '4px 10px', borderRadius: '20px',
+                          background: 'rgba(91, 70, 246, 0.12)',
+                          border: '1px solid rgba(91, 70, 246, 0.3)',
+                          color: '#a78bfa', fontSize: '12px', fontWeight: '500',
+                        }}>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: PREFERENCES ── */}
+            {activeTab === 'preferences' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Workspace Preferences"
+                  desc="Customize your code editor, AI coach behavior, and notifications."
+                />
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <Field label="Primary Language">
+                    <SelectInput
+                      value={settings.primaryLang}
+                      onChange={(v) => set('primaryLang', v)}
+                      options={[
+                        { value: 'cpp', label: 'C++ (GCC 11.2)' },
+                        { value: 'python', label: 'Python 3.10' },
+                        { value: 'java', label: 'Java 17 OpenJDK' },
+                        { value: 'javascript', label: 'JavaScript (Node.js 20)' },
+                      ]}
+                    />
+                  </Field>
+                  <Field label="Editor Theme">
+                    <SelectInput
+                      value={settings.editorTheme}
+                      onChange={(v) => set('editorTheme', v)}
+                      options={[
+                        { value: 'vs-dark', label: 'VS Code Dark' },
+                        { value: 'monokai', label: 'Monokai Pro' },
+                        { value: 'one-dark', label: 'One Dark Pro' },
+                        { value: 'github-dark', label: 'GitHub Dark' },
+                      ]}
+                    />
+                  </Field>
+                </div>
+
+                <Field label="AI Coach Proactivity">
+                  <SelectInput
+                    value={settings.aiCoachingLevel}
+                    onChange={(v) => set('aiCoachingLevel', v)}
+                    options={[
+                      { value: 'proactive', label: 'Proactive — Suggests hints when stuck' },
+                      { value: 'on-demand', label: 'On Demand — Only when asked' },
+                      { value: 'strict', label: 'Strict — No hints until submission' },
+                    ]}
+                  />
+                </Field>
+
+                {/* Toggle rows */}
+                {[
+                  { key: 'autoSaveCode' as keyof UserSettings, label: 'Auto-save Code', desc: 'Automatically persist draft solutions as you type.' },
+                  { key: 'dailyReminder' as keyof UserSettings, label: 'Daily Problem Reminders', desc: 'Receive notifications to maintain your daily streak.' },
+                ].map((item) => (
+                  <div key={item.key} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '16px', borderRadius: '8px',
+                    background: '#0d1117', border: '1px solid #21262d',
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '500', color: '#e2e8f0', marginBottom: '2px' }}>{item.label}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>{item.desc}</div>
+                    </div>
+                    <Toggle
+                      checked={settings[item.key] as boolean}
+                      onChange={(v) => set(item.key, v)}
+                    />
+                  </div>
+                ))}
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: INTEGRATIONS ── */}
+            {activeTab === 'integrations' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <SectionTitle
+                  title="API Integrations"
+                  desc="Configure API keys to enable code compilation, AI coaching, and GitHub sync."
+                />
+
+                {/* Integration cards */}
+                {[
+                  {
+                    id: 'judge0',
+                    icon: '⚙️',
+                    title: 'Judge0 Code Execution',
+                    desc: 'Executes C++, Java, Python in a sandbox. Get a free key from RapidAPI.',
+                    label: 'JUDGE0_API_KEY',
+                    key: 'judge0Key' as keyof UserSettings,
+                    placeholder: 'Paste your RapidAPI key...',
+                    status: 'RapidAPI',
+                    statusColor: '#38bdf8',
+                  },
+                  {
+                    id: 'gemini',
+                    icon: '🤖',
+                    title: 'Google Gemini AI',
+                    desc: 'Powers the AI Coach chatbot and mock interview agent.',
+                    label: 'GEMINI_API_KEY',
+                    key: 'geminiKey' as keyof UserSettings,
+                    placeholder: 'AIzaSy...',
+                    status: 'Google AI Studio',
+                    statusColor: '#a78bfa',
+                  },
+                  {
+                    id: 'github',
+                    icon: '🐙',
+                    title: 'GitHub Auto-Push',
+                    desc: 'Automatically commits solved problems to your GitHub repo.',
+                    label: 'GITHUB_TOKEN (Personal Access Token)',
+                    key: 'githubToken' as keyof UserSettings,
+                    placeholder: 'ghp_...',
+                    status: 'GitHub',
+                    statusColor: '#10b981',
+                  },
+                ].map((item) => (
+                  <div key={item.id} style={{
+                    background: '#0d1117', border: '1px solid #21262d',
+                    borderRadius: '10px', padding: '20px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '16px' }}>
+                      <span style={{ fontSize: '22px' }}>{item.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{item.title}</span>
+                          <span style={{
+                            padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '500',
+                            background: `${item.statusColor}18`, color: item.statusColor,
+                            border: `1px solid ${item.statusColor}30`,
+                          }}>
+                            {item.status}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.5' }}>{item.desc}</p>
+                      </div>
+                    </div>
+                    <PasswordField
+                      label={item.label}
+                      value={settings[item.key] as string}
+                      onChange={(v) => set(item.key, v)}
+                      placeholder={item.placeholder}
+                      showKey={!!showKeys[item.id]}
+                      onToggleShow={() => toggleKey(item.id)}
+                    />
+                  </div>
+                ))}
+
+                {/* Supabase block */}
+                <div style={{
+                  background: '#0d1117', border: '1px solid rgba(62, 207, 142, 0.25)',
+                  borderRadius: '10px', padding: '20px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '16px' }}>
+                    <span style={{ fontSize: '22px' }}>⚡</span>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>Supabase Cloud DB</span>
+                        <span style={{
+                          padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '500',
+                          background: 'rgba(62, 207, 142, 0.1)', color: '#3ecf8e',
+                          border: '1px solid rgba(62, 207, 142, 0.25)',
+                        }}>
+                          PostgreSQL + Realtime
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.5' }}>
+                        Stores user accounts, problems, submissions, virtual library rooms, real-time chat messages, and study sessions.
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <Field label="NEXT_PUBLIC_SUPABASE_URL">
+                      <TextInput
+                        value={settings.supabaseUrl}
+                        onChange={(v) => set('supabaseUrl', v)}
+                        placeholder="https://your-project-ref.supabase.co"
+                      />
+                    </Field>
+                    <PasswordField
+                      label="NEXT_PUBLIC_SUPABASE_ANON_KEY"
+                      value={settings.supabaseAnonKey}
+                      onChange={(v) => set('supabaseAnonKey', v)}
+                      placeholder="eyJhbGciOiJIUzI1Ni..."
+                      showKey={!!showKeys['supabase']}
+                      onToggleShow={() => toggleKey('supabase')}
+                    />
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          showToast('Testing Supabase connection...');
+                          try {
+                            await fetch('/api/health');
+                            showToast('Connected to Supabase successfully!');
+                          } catch {
+                            showToast('Running in local demo mode. Add keys to enable cloud sync.');
+                          }
+                        }}
+                        style={{
+                          padding: '7px 14px', borderRadius: '6px',
+                          background: 'transparent', border: '1px solid rgba(62, 207, 142, 0.4)',
+                          color: '#3ecf8e', fontSize: '12px', fontWeight: '500', cursor: 'pointer',
+                        }}
+                      >
+                        ⚡ Test Connection
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => copyText(
+                          `NEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey}`,
+                          'Supabase config'
+                        )}
+                        style={{
+                          padding: '7px 14px', borderRadius: '6px',
+                          background: 'transparent', border: '1px solid #30363d',
+                          color: '#8b949e', fontSize: '12px', fontWeight: '500', cursor: 'pointer',
+                        }}
+                      >
+                        Copy SQL Schema
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* .env.local preview */}
+                <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: '10px', overflow: 'hidden' }}>
+                  <div style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '12px 16px', borderBottom: '1px solid #21262d',
+                  }}>
+                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#8b949e', fontFamily: 'monospace' }}>
+                      📄 .env.local
+                    </span>
                     <button
                       type="button"
-                      className="btn btn-ghost btn-xs"
-                      onClick={() =>
-                        copyToClipboard(
-                          `-- Run this in Supabase SQL Editor:\ncreate table if not exists public.rooms (id uuid primary key default gen_random_uuid(), name text not null, type text not null, created_at timestamptz default now());`,
-                          'Supabase SQL Schema'
-                        )
-                      }
+                      onClick={() => copyText(
+                        `JUDGE0_API_KEY=${settings.judge0Key || 'your_key'}\nGEMINI_API_KEY=${settings.geminiKey || 'your_key'}\nGITHUB_TOKEN=${settings.githubToken || 'your_token'}\nNEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || 'https://your-project.supabase.co'}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || 'your_anon_key'}`,
+                        '.env.local template'
+                      )}
+                      style={{
+                        padding: '4px 10px', borderRadius: '5px',
+                        background: 'transparent', border: '1px solid #30363d',
+                        color: '#8b949e', fontSize: '11px', cursor: 'pointer',
+                      }}
                     >
-                      📋 Copy SQL Schema Script
+                      Copy
+                    </button>
+                  </div>
+                  <pre style={{
+                    margin: 0, padding: '16px', fontSize: '12px', color: '#79c0ff',
+                    fontFamily: 'monospace', lineHeight: '1.7', overflowX: 'auto',
+                  }}>
+{`JUDGE0_API_KEY=${settings.judge0Key || '<your_rapidapi_key>'}
+GEMINI_API_KEY=${settings.geminiKey || '<your_gemini_api_key>'}
+GITHUB_TOKEN=${settings.githubToken || '<ghp_your_token>'}
+NEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || '<https://xxx.supabase.co>'}
+NEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || '<your_anon_key>'}`}
+                  </pre>
+                </div>
+
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
+                  <SaveButton onClick={handleSave} label="Save API Keys" />
+                </div>
+              </div>
+            )}
+
+            {/* ── TAB: SECURITY ── */}
+            {activeTab === 'security' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <SectionTitle
+                  title="Security & Account"
+                  desc="Manage your password, sessions, and account data."
+                />
+
+                <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>Change Password</div>
+                  <Field label="Current Password">
+                    <TextInput type="password" value="" onChange={() => {}} placeholder="••••••••" />
+                  </Field>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <Field label="New Password">
+                      <TextInput type="password" value="" onChange={() => {}} placeholder="••••••••" />
+                    </Field>
+                    <Field label="Confirm New Password">
+                      <TextInput type="password" value="" onChange={() => {}} placeholder="••••••••" />
+                    </Field>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => showToast('Password updated!')}
+                      style={{
+                        padding: '8px 18px', borderRadius: '7px',
+                        background: 'transparent', border: '1px solid #30363d',
+                        color: '#e2e8f0', fontSize: '13px', fontWeight: '500', cursor: 'pointer',
+                      }}
+                    >
+                      Update Password
+                    </button>
+                  </div>
+                </div>
+
+                {/* Danger Zone */}
+                <div style={{
+                  background: '#0d1117', border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '10px', padding: '20px',
+                }}>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#ef4444', marginBottom: '16px' }}>
+                    Danger Zone
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '500', color: '#e2e8f0', marginBottom: '2px' }}>
+                        Clear Local Progress Cache
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>
+                        Resets local problem stats. Your cloud data is unaffected.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.clear();
+                        showToast('Local cache cleared.');
+                      }}
+                      style={{
+                        padding: '7px 14px', borderRadius: '6px',
+                        background: 'rgba(239, 68, 68, 0.08)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ef4444', fontSize: '12px', fontWeight: '500',
+                        cursor: 'pointer', flexShrink: 0,
+                      }}
+                    >
+                      Clear Cache
                     </button>
                   </div>
                 </div>
               </div>
-
-              {/* .env.local Template Box */}
-              <div className="env-template-box">
-                <div className="env-box-header">
-                  <span>📄 .env.local Configuration File</span>
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-xs"
-                    onClick={() =>
-                      copyToClipboard(
-                        `JUDGE0_API_KEY=${settings.judge0Key || 'your_key'}\nGEMINI_API_KEY=${settings.geminiKey || 'your_key'}\nGITHUB_TOKEN=${settings.githubToken || 'your_token'}\nNEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || 'https://your-project.supabase.co'}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || 'your_anon_key'}`,
-                        '.env.local Config'
-                      )
-                    }
-                  >
-                    Copy Template
-                  </button>
-                </div>
-                <pre className="env-code">
-{`# Supabase Cloud Database Credentials
-NEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || 'https://your-project-ref.supabase.co'}
-NEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || 'your_supabase_anon_key'}
-
-# Judge0 Compiler Key
-JUDGE0_API_KEY=${settings.judge0Key || 'your_rapidapi_key_here'}
-JUDGE0_API_HOST=judge0-ce.p.rapidapi.com
-
-# Gemini AI Key
-GEMINI_API_KEY=${settings.geminiKey || 'your_gemini_api_key_here'}
-
-# GitHub Integration
-GITHUB_TOKEN=${settings.githubToken || 'ghp_your_token_here'}
-GITHUB_USERNAME=${settings.githubUser}`}
-                </pre>
-              </div>
-
-              <div className="form-action-bar">
-                <button type="button" className="btn btn-violet" onClick={() => handleSave()}>
-                  Save API Keys
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: WORKSPACE PREFERENCES */}
-          {activeTab === 'preferences' && (
-            <form onSubmit={handleSave} className="settings-form-grid">
-              <div className="settings-section-header">
-                <h3 className="settings-section-title">IDE & Workspace Preferences</h3>
-                <p className="settings-section-desc">Customize code editor defaults, compiler options, and AI assistant behavior.</p>
-              </div>
-
-              <div className="settings-field-row">
-                <div className="settings-field">
-                  <label>Primary Language</label>
-                  <select
-                    value={settings.primaryLang}
-                    onChange={(e) => setSettings({ ...settings, primaryLang: e.target.value })}
-                  >
-                    <option value="cpp">C++ (GCC 11.2)</option>
-                    <option value="python">Python 3.10</option>
-                    <option value="java">Java 17 OpenJDK</option>
-                    <option value="javascript">JavaScript (Node.js 20)</option>
-                  </select>
-                </div>
-
-                <div className="settings-field">
-                  <label>Code Editor Theme</label>
-                  <select
-                    value={settings.editorTheme}
-                    onChange={(e) => setSettings({ ...settings, editorTheme: e.target.value })}
-                  >
-                    <option value="vs-dark">VS Code Dark (Default)</option>
-                    <option value="monokai">Monokai Pro</option>
-                    <option value="one-dark">One Dark Pro</option>
-                    <option value="github-dark">GitHub Dark High Contrast</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="settings-field">
-                <label>AI Assistant Proactivity</label>
-                <select
-                  value={settings.aiCoachingLevel}
-                  onChange={(e) => setSettings({ ...settings, aiCoachingLevel: e.target.value })}
-                >
-                  <option value="proactive">Proactive (Suggests hints when stuck)</option>
-                  <option value="on-demand">On Demand (Only responds when asked)</option>
-                  <option value="strict">Strict Interview Mode (No hints until submission)</option>
-                </select>
-              </div>
-
-              {/* Toggles */}
-              <div className="settings-toggle-row">
-                <div>
-                  <div className="toggle-label">Auto-save Code Workspace</div>
-                  <div className="toggle-desc">Automatically persist draft solutions as you type.</div>
-                </div>
-                <input
-                  type="checkbox"
-                  className="settings-checkbox"
-                  checked={settings.autoSaveCode}
-                  onChange={(e) => setSettings({ ...settings, autoSaveCode: e.target.checked })}
-                />
-              </div>
-
-              <div className="settings-toggle-row">
-                <div>
-                  <div className="toggle-label">Daily Problem Reminders</div>
-                  <div className="toggle-desc">Receive notifications to maintain your daily solving streak.</div>
-                </div>
-                <input
-                  type="checkbox"
-                  className="settings-checkbox"
-                  checked={settings.dailyReminder}
-                  onChange={(e) => setSettings({ ...settings, dailyReminder: e.target.checked })}
-                />
-              </div>
-
-              <div className="form-action-bar">
-                <button type="submit" className="btn btn-violet">
-                  Save Preferences
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* TAB 4: SECURITY & ACCOUNT */}
-          {activeTab === 'security' && (
-            <div className="settings-form-grid">
-              <div className="settings-section-header">
-                <h3 className="settings-section-title">Security & Session Management</h3>
-                <p className="settings-section-desc">Manage your password, active browser sessions, and export options.</p>
-              </div>
-
-              <div className="settings-field">
-                <label>Current Password</label>
-                <input type="password" placeholder="••••••••" />
-              </div>
-
-              <div className="settings-field-row">
-                <div className="settings-field">
-                  <label>New Password</label>
-                  <input type="password" placeholder="••••••••" />
-                </div>
-                <div className="settings-field">
-                  <label>Confirm New Password</label>
-                  <input type="password" placeholder="••••••••" />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm align-self-start"
-                onClick={() => showToast('Password updated successfully!')}
-              >
-                Update Password
-              </button>
-
-              <div className="settings-section-header mt-4">
-                <h3 className="settings-section-title">Danger Zone</h3>
-                <p className="settings-section-desc">Irreversible account actions.</p>
-              </div>
-
-              <div className="danger-zone-box">
-                <div className="danger-zone-row">
-                  <div>
-                    <div className="danger-zone-title">Clear Local Progress Cache</div>
-                    <div className="danger-zone-desc">Resets local problem stats cache and restores default state.</div>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm text-red"
-                    onClick={() => {
-                      localStorage.clear();
-                      showToast('Local cache cleared successfully.');
-                    }}
-                  >
-                    Clear Cache
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
