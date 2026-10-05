@@ -4508,6 +4508,82 @@ body {
   .theme-toggle-button { width: 36px; padding: 5px; }
 }
 
+/* Desktop rail expands on hover or keyboard focus, then gives the page its space back. */
+@media (hover: hover) and (min-width: 1001px) {
+  .playful-theme .sidebar-purple-container {
+    left: 20px;
+    top: 20px;
+    right: auto;
+    bottom: 20px;
+    width: 64px;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 8px;
+    overflow: hidden;
+    transition: width 300ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms ease;
+  }
+  .playful-theme .sidebar-logo-white-pill {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 6px;
+    gap: 0;
+    transition: width 300ms ease, padding 300ms ease;
+  }
+  .playful-theme .sidebar-logo-white-pill .logo-text-dark,
+  .playful-theme .sidebar-user-dark-card,
+  .playful-theme .sidebar-nav-pills,
+  .playful-theme .sidebar-footer-pills {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 120ms ease, visibility 0s linear 300ms;
+  }
+  .playful-theme .main-content {
+    margin-left: 106px;
+    transition: margin-left 300ms cubic-bezier(.2,.8,.2,1);
+  }
+  .playful-theme .sidebar-purple-container:hover,
+  .playful-theme .sidebar-purple-container:focus-within {
+    width: 250px;
+    overflow-y: auto;
+    box-shadow: 6px 6px 0 var(--ref-ink), 0 0 0 3px #a48dff;
+  }
+  .playful-theme .sidebar-purple-container:hover .sidebar-logo-white-pill,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-logo-white-pill {
+    width: auto;
+    justify-content: flex-start;
+    padding: 9px 12px;
+    gap: 10px;
+  }
+  .playful-theme .sidebar-purple-container:hover .sidebar-logo-white-pill .logo-text-dark,
+  .playful-theme .sidebar-purple-container:hover .sidebar-user-info,
+  .playful-theme .sidebar-purple-container:hover .sidebar-pill-badge,
+  .playful-theme .sidebar-purple-container:hover .sidebar-user-dark-card,
+  .playful-theme .sidebar-purple-container:hover .sidebar-nav-pills,
+  .playful-theme .sidebar-purple-container:hover .sidebar-footer-pills,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-logo-white-pill .logo-text-dark,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-user-info,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-pill-badge,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-user-dark-card,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-nav-pills,
+  .playful-theme .sidebar-purple-container:focus-within .sidebar-footer-pills {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 180ms ease 80ms, visibility 0s;
+  }
+  .playful-theme .sidebar-purple-container:hover + .main-content,
+  .playful-theme .sidebar-purple-container:focus-within + .main-content { margin-left: 292px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .playful-theme .sidebar-purple-container,
+  .playful-theme .sidebar-logo-white-pill,
+  .playful-theme .main-content { transition-duration: 0.01ms; }
+}
+
 
 
 
