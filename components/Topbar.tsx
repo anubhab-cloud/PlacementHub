@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { Moon, Sun } from 'lucide-react';
 
-export default function Topbar() {
+export default function Topbar({ isDarkTheme, onToggleTheme }: { isDarkTheme: boolean; onToggleTheme: () => void }) {
   const [query, setQuery] = useState('');
   const pathname = usePathname();
   const { user } = useAuth();
@@ -56,6 +57,17 @@ export default function Topbar() {
         <div className="topbar-right-badge">
           GitHub synced
         </div>
+        <button
+          type="button"
+          className="theme-toggle-button"
+          onClick={onToggleTheme}
+          aria-label={`Switch to ${isDarkTheme ? 'light' : 'dark'} theme`}
+          aria-pressed={!isDarkTheme}
+          title={`Switch to ${isDarkTheme ? 'light' : 'dark'} theme`}
+        >
+          {isDarkTheme ? <Sun size={15} aria-hidden="true" /> : <Moon size={15} aria-hidden="true" />}
+          <span>{isDarkTheme ? 'Light' : 'Dark'} theme</span>
+        </button>
       </div>
     </header>
   );

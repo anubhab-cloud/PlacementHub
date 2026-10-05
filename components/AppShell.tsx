@@ -13,17 +13,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
 
   useEffect(() => {
     setMounted(true);
+    setIsDarkTheme(window.localStorage.getItem('placementhub-theme') !== 'light');
   }, []);
+
+  const toggleTheme = () => {
+    setIsDarkTheme((current) => {
+      const nextIsDark = !current;
+      window.localStorage.setItem('placementhub-theme', nextIsDark ? 'dark' : 'light');
+      return nextIsDark;
+    });
+  };
+
+  const themeClass = isDarkTheme ? 'dark-theme' : 'light-theme';
 
   const isHomePage = pathname === '/';
 
   // If user is on the root home page "/" and is not logged in after mounting, show Landing Page
   if (mounted && isHomePage && !isLoggedIn) {
     return (
-      <div suppressHydrationWarning>
+      <div className={`playful-landing-theme ${themeClass}`} suppressHydrationWarning>
         <LandingPage />
         <LoginModal />
       </div>
@@ -31,11 +43,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div suppressHydrationWarning>
-      <div className="app-shell">
+    <div className={`playful-theme ${themeClass}`} suppressHydrationWarning>
+      <div className={`app-shell playful-theme ${themeClass}${pathname.startsWith('/companies') ? ' directory-theme' : ''}`}>
         <Sidebar />
         <div className="main-content">
-          <Topbar />
+          <Topbar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
           <main className="page-content">{children}</main>
         </div>
       </div>

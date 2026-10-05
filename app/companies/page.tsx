@@ -43,17 +43,16 @@ export default function CompanyDirectoryPage() {
   return (
     <div className="dashboard-container">
       {/* Hero Header */}
-      <div className="dashboard-hero-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '16px' }}>
-        <div className="hero-pill-subhead">
-          COMPANY-SPECIFIC TEST PREP
+      <div className="dashboard-hero-card directory-hero">
+        <div className="directory-intro">
+          <div className="hero-pill-subhead">COMPANY-SPECIFIC TEST PREP</div>
+          <h1 className="hero-title">Target company directory</h1>
+          <p className="hero-subtitle">
+            Explore 18+ top companies across product, service, unicorn and fintech sectors. Analyse round structures, past interview questions and package details, and measure your readiness score.
+          </p>
         </div>
-        <h1 className="hero-title" style={{ fontSize: '26px', margin: 0 }}>Target company directory</h1>
-        <p className="hero-subtitle" style={{ maxWidth: '680px', margin: 0 }}>
-          Explore 18+ top companies across product, service, unicorn and fintech sectors. 
-          Analyse round structures, past interview questions and package details, and measure your readiness score.
-        </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', width: '100%', marginTop: '8px' }}>
+        <div className="directory-stats">
           <div className="hero-stat-box-dark">
             <div className="stat-box-label">Total companies</div>
             <div className="stat-box-value">17 tracked</div>
@@ -79,6 +78,7 @@ export default function CompanyDirectoryPage() {
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={`category-filter-pill ${selectedCategory === cat ? 'active' : ''}`}
+              aria-pressed={selectedCategory === cat}
             >
               {cat}
             </button>
@@ -99,7 +99,7 @@ export default function CompanyDirectoryPage() {
       </div>
 
       {/* Company Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+      <div className="directory-cards" aria-live="polite">
         {filteredCompanies.map((company) => {
           const isTarget = targetIds.includes(company.id);
           const readiness = getCompanyReadiness(company);
@@ -180,6 +180,7 @@ export default function CompanyDirectoryPage() {
             </div>
           );
         })}
+        {filteredCompanies.length === 0 && <div className="directory-empty">No companies match your search.</div>}
       </div>
     </div>
   );
