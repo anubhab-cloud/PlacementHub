@@ -11,16 +11,12 @@ import ContributionGraphWidget from '@/components/widgets/ContributionGraphWidge
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const [greeting, setGreeting] = useState('Good morning');
   const [dateString, setDateString] = useState('');
   const [pendingOAs, setPendingOAs] = useState(1);
   const userName = 'Anubhab';
 
   useEffect(() => {
     const now = new Date();
-    const h = now.getHours();
-    setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
-
     const formattedDate = now.toLocaleDateString('en-US', {
       weekday: 'long',
       day: 'numeric',
@@ -40,23 +36,31 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container dashboard-home-page">
       {/* ── Banner Hero Card ── */}
-      <div className="dashboard-hero-card">
+      <section className="dashboard-home-hero">
+        <span className="dashboard-home-pill"><i />Welcome back, {userName}</span>
+        <h1>Crack top tech offers with <span>AI coaching</span> and a live study hub</h1>
+        <p className="dashboard-home-lead">The all-in-one placement prep platform. Track DSA progress, run mock interviews with Gemini AI, join live study rooms, and build a verified developer portfolio.</p>
+        <div className="dashboard-home-actions">
+          <Link href="/prep" className="dashboard-home-button primary">Start preparing free <span aria-hidden="true">→</span></Link>
+          <Link href="/workspace" className="dashboard-home-button">▶ Instant live demo</Link>
+        </div>
+        <div className="dashboard-home-stats">
+          <div><b>15,000+</b><span>Problems solved</span></div>
+          <div><b>94%</b><span>Interview pass rate</span></div>
+          <div><b>21 days</b><span>Average prep streak</span></div>
+          <div><b>50+</b><span>Campus placement hubs</span></div>
+        </div>
+      </section>
+
+      <div className="dashboard-home-section-heading">
         <div>
-          <h1 className="hero-title">{greeting}, {userName}</h1>
-          <p className="hero-subtitle">
-            {dateString ? dateString : 'Today'}. 3 pending problems and {pendingOAs} upcoming assessment{pendingOAs === 1 ? '' : 's'}.
-          </p>
+          <span className="dashboard-home-eyebrow">Your workspace</span>
+          <h2>Your preparation dashboard</h2>
+          <p>{dateString || 'Today'} · 3 pending problems and {pendingOAs} upcoming assessment{pendingOAs === 1 ? '' : 's'}.</p>
         </div>
-        <div className="hero-actions">
-          <Link href="/workspace" className="btn-hero-dark" id="btn-daily-challenge" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-            Daily challenge
-          </Link>
-          <Link href="/workspace" className="btn-hero-purple" id="btn-start-session" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-            Start session
-          </Link>
-        </div>
+        <Link href="/workspace" className="dashboard-home-button small" id="btn-daily-challenge">Daily challenge <span aria-hidden="true">→</span></Link>
       </div>
 
       {/* ── GitHub Sync Bar ── */}

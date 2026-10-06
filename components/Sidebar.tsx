@@ -13,7 +13,8 @@ import {
   User,
   Library,
   BookOpen,
-  Settings
+  Settings,
+  LogOut
 } from 'lucide-react';
 
 const navItems = [
@@ -30,12 +31,11 @@ const navItems = [
 const footerItems = [
   { label: 'Uni Hub', href: '/uni-hub', icon: Library },
   { label: 'Virtual Lib', href: '/virtual-lib', icon: BookOpen },
-  { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <aside className="sidebar-purple-container">
@@ -96,9 +96,23 @@ export default function Sidebar() {
           );
         })}
       </div>
+
+      {/* Settings & Logout (Bottom Section) */}
+      <div className="sidebar-bottom-actions">
+        <svg width="34" height="12" viewBox="0 0 34 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="sidebar-bottom-divider">
+          <path d="M1 11C1 11 1 1 17 1C33 1 33 11 33 11" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+
+        <Link href="/settings" className="sidebar-action-icon" title="Settings">
+          <User size={24} className="icon-grey" strokeWidth={1.5} />
+        </Link>
+
+        <button onClick={logout} className="sidebar-action-icon logout-btn" title="Log Out">
+          <LogOut size={24} className="icon-red" strokeWidth={1.5} />
+        </button>
+      </div>
     </aside>
   );
 }
-
 
 

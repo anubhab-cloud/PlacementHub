@@ -7,6 +7,7 @@ import Sidebar from '@/components/Sidebar';
 import Topbar from '@/components/Topbar';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import LandingPage from '@/components/LandingPage';
+import SiteFooter from '@/components/SiteFooter';
 import LoginModal from '@/components/LoginModal';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -36,7 +37,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (mounted && isHomePage && !isLoggedIn) {
     return (
       <div className={`playful-landing-theme ${themeClass}`} suppressHydrationWarning>
-        <LandingPage />
+        <LandingPage isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
+        <SiteFooter />
         <LoginModal />
       </div>
     );
@@ -49,6 +51,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="main-content">
           <Topbar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
           <main className="page-content">{children}</main>
+          <SiteFooter />
         </div>
       </div>
       <FloatingChatbot />
