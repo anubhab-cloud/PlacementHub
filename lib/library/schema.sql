@@ -69,6 +69,19 @@ create index if not exists idx_room_messages_room_time on public.room_messages(r
 create index if not exists idx_study_sessions_user_time on public.study_sessions(user_id, started_at desc);
 create index if not exists idx_study_sessions_room_time on public.study_sessions(room_id, started_at desc);
 
+-- Enable live room discovery and chat events in Supabase Realtime when available.
+do $$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+    if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'rooms') then
+      alter publication supabase_realtime add table public.rooms;
+    end if;
+    if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'room_messages') then
+      alter publication supabase_realtime add table public.room_messages;
+    end if;
+  end if;
+end $$;
+
 -- =================================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =================================================================

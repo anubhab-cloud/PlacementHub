@@ -9,7 +9,7 @@ interface HallChatPanelProps {
   currentUserId?: string;
   currentUserName?: string;
   currentUserAvatar?: string;
-  onSendMessage: (text: string) => void;
+  onSendMessage: (text: string) => void | Promise<void>;
   roomId: string;
 }
 
@@ -42,6 +42,7 @@ export default function HallChatPanel({
 }: HallChatPanelProps) {
   const [activeTab, setActiveTab] = useState<'chat' | 'people'>('chat');
   const [inputText, setInputText] = useState('');
+  const [sendError, setSendError] = useState('');
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new messages
@@ -49,10 +50,12 @@ export default function HallChatPanel({
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputText.trim()) return;
-    onSendMessage(inputText.trim());
-    setInputText('');
+    try {
+      await onSendMessage(inputText.trim());
+      setInputText(''); setSendError('');
+    } catch { setSendError('Could not send. Your draft is still here.'); }
   };
 
   return (
@@ -157,6 +160,7 @@ export default function HallChatPanel({
             })}
             <div ref={chatBottomRef} />
           </div>
+          {sendError && <div role="alert" style={{ color: '#f87171', fontSize: '10px', marginTop: '5px' }}>{sendError}</div>}
 
           {/* Input Box */}
           <div style={{

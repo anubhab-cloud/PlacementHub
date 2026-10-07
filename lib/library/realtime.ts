@@ -20,6 +20,14 @@ export type ChatCallback = (msg: RoomMessage) => void;
 export type PresenceCallback = (members: PresenceState[]) => void;
 export type TypingCallback = (userName: string) => void;
 
+export function subscribeToRooms(onChange: () => void) {
+  if (!supabase) return () => {};
+  const channel = supabase.channel('vlib_rooms_catalog');
+  channel.on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, onChange);
+  channel.subscribe();
+  return () => { void supabase.removeChannel(channel); };
+}
+
 /**
  * Subscribe to Supabase Realtime Channel for a given Room ID
  */
@@ -31,10 +39,11 @@ export function subscribeToRoomRealtime(
   isMicOn: boolean,
   onNewMessage: ChatCallback,
   onPresenceUpdate: PresenceCallback,
-  onTypingNotice: TypingCallback
+  onTypingNotice: TypingCallback,
+  onConnectionChange: (connected: boolean) => void = () => {}
 ) {
   if (!supabase) {
-    console.log('[Realtime] Running in local offline fallback mode for room:', roomId);
+    onConnectionChange(false);
     return () => {};
   }
 
@@ -81,6 +90,7 @@ export function subscribeToRoomRealtime(
 
   // Subscribe and track current user presence
   channel.subscribe(async (status) => {
+    onConnectionChange(status === 'SUBSCRIBED');
     if (status === 'SUBSCRIBED') {
       await channel.track({
         user_id: currentUser.email || 'anon_user',

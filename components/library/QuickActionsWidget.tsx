@@ -1,13 +1,21 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface QuickActionsWidgetProps {
   onOpenCreateRoom: () => void;
 }
 
 export default function QuickActionsWidget({ onOpenCreateRoom }: QuickActionsWidgetProps) {
+  const [inviteCopied, setInviteCopied] = useState(false);
+  const copyInvite = async () => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/virtual-lib`);
+      setInviteCopied(true);
+      window.setTimeout(() => setInviteCopied(false), 2200);
+    } catch { window.prompt('Copy this library link to invite a friend:', `${window.location.origin}/virtual-lib`); }
+  };
   const actions = [
-    { label: 'Invite a friend', icon: '👤+', onClick: () => alert('Invite link copied to clipboard!') },
+    { label: inviteCopied ? 'Invite link copied' : 'Invite a friend', icon: '👤+', onClick: copyInvite },
     { label: 'Create private room', icon: '➕', onClick: onOpenCreateRoom },
     { label: 'Start live coding', icon: '</>', onClick: () => window.location.href = '/workspace' },
     { label: 'Study with AI', icon: '✨', onClick: () => window.location.href = '/ai' },

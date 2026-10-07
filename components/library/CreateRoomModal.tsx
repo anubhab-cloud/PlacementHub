@@ -13,7 +13,7 @@ interface CreateRoomModalProps {
     privacy: 'public' | 'private';
     max_members: number;
     capabilities: RoomCapabilities;
-  }) => void;
+  }) => void | Promise<void>;
 }
 
 export default function CreateRoomModal({
@@ -27,6 +27,8 @@ export default function CreateRoomModal({
   const [privacy, setPrivacy] = useState<'public' | 'private'>('public');
   const [maxMembers, setMaxMembers] = useState(12);
   const [capabilities, setCapabilities] = useState<RoomCapabilities>(getDefaultCapabilities('private'));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
@@ -35,33 +37,27 @@ export default function CreateRoomModal({
     setCapabilities(getDefaultCapabilities(newType));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-
-    onCreateRoom({
-      name: name.trim(),
-      description: description.trim() || 'Focused peer study group',
-      type,
-      privacy,
-      max_members: maxMembers,
-      capabilities,
-    });
-
-    // Reset & Close
-    setName('');
-    setDescription('');
-    onClose();
+    if (!name.trim() || saving) return;
+    setSaving(true);
+    setError('');
+    try {
+      await onCreateRoom({ name: name.trim(), description: description.trim(), type, privacy, max_members: maxMembers, capabilities });
+      setName(''); setDescription(''); onClose();
+    } catch {
+      setError('The room could not be created. Please try again.');
+    } finally { setSaving(false); }
   };
 
   return (
-    <div className="modal-overlay" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div className="modal-box" style={{ width: '500px', background: 'rgba(18, 19, 26, 0.95)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '24px' }}>
+    <div className="modal-overlay vlib-modal" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div className="modal-box vlib-modal-box" style={{ width: '500px', background: 'rgba(18, 19, 26, 0.95)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-1)' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--ref-text)' }}>
             ➕ Create Virtual Study Room
           </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-3)', fontSize: '20px', cursor: 'pointer' }}>
+          <button aria-label="Close create room dialog" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--ref-muted)', fontSize: '20px', cursor: 'pointer' }}>
             ×
           </button>
         </div>
@@ -69,7 +65,7 @@ export default function CreateRoomModal({
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Room Name */}
           <div>
-            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-2)', display: 'block', marginBottom: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--ref-muted)', display: 'block', marginBottom: '6px' }}>
               Room Name *
             </label>
             <input
@@ -84,7 +80,7 @@ export default function CreateRoomModal({
                 borderRadius: '8px',
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-1)',
+                color: 'var(--ref-text)',
                 fontSize: '13px',
                 outline: 'none'
               }}
@@ -93,7 +89,7 @@ export default function CreateRoomModal({
 
           {/* Description */}
           <div>
-            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-2)', display: 'block', marginBottom: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--ref-muted)', display: 'block', marginBottom: '6px' }}>
               Study Topic & Description
             </label>
             <input
@@ -107,7 +103,7 @@ export default function CreateRoomModal({
                 borderRadius: '8px',
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-1)',
+                color: 'var(--ref-text)',
                 fontSize: '13px',
                 outline: 'none'
               }}
@@ -116,7 +112,7 @@ export default function CreateRoomModal({
 
           {/* Room Type */}
           <div>
-            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-2)', display: 'block', marginBottom: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--ref-muted)', display: 'block', marginBottom: '6px' }}>
               Room Type
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
@@ -133,8 +129,8 @@ export default function CreateRoomModal({
                     padding: '8px',
                     borderRadius: '6px',
                     background: type === item.id ? 'rgba(99, 91, 255, 0.2)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${type === item.id ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}`,
-                    color: type === item.id ? 'var(--accent)' : 'var(--text-2)',
+                    border: `1px solid ${type === item.id ? 'var(--ref-violet)' : 'rgba(255,255,255,0.1)'}`,
+                    color: type === item.id ? 'var(--ref-violet)' : 'var(--ref-muted)',
                     fontSize: '12px',
                     fontWeight: '600',
                     cursor: 'pointer'
@@ -146,9 +142,17 @@ export default function CreateRoomModal({
             </div>
           </div>
 
+          <div>
+            <label htmlFor="vlib-room-privacy" style={{ fontSize: '12px', fontWeight: '600', color: 'var(--ref-muted)', display: 'block', marginBottom: '6px' }}>Room visibility</label>
+            <select id="vlib-room-privacy" value={privacy} onChange={(event) => setPrivacy(event.target.value as 'public' | 'private')} style={{ width: '100%', padding: '10px 12px', borderRadius: '9px', background: 'var(--ref-bg)', border: '1.5px solid var(--ref-ink)', color: 'var(--ref-text)', font: 'inherit', fontSize: '12px' }}>
+              <option value="public">Listed — anyone can find and join</option>
+              <option value="private">Unlisted — join with the room link</option>
+            </select>
+          </div>
+
           {/* Max Members */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-2)', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--ref-muted)', marginBottom: '6px' }}>
               <span>Max Capacity</span>
               <strong>{maxMembers} Students</strong>
             </div>
@@ -158,7 +162,7 @@ export default function CreateRoomModal({
               max="50"
               value={maxMembers}
               onChange={(e) => setMaxMembers(Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }}
+              style={{ width: '100%', accentColor: 'var(--ref-violet)', cursor: 'pointer' }}
             />
           </div>
 

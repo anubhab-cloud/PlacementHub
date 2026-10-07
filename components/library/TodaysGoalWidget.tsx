@@ -11,13 +11,7 @@ interface TodaysGoalWidgetProps {
   userId: string;
 }
 
-const DEFAULT_GOALS: Goal[] = [
-  { id: 'g1', text: 'Solve 3 DSA problems', done: false },
-  { id: 'g2', text: 'Study DBMS normalization', done: false },
-  { id: 'g3', text: 'Read OS scheduling notes', done: false },
-  { id: 'g4', text: 'Revise SQL joins', done: false },
-  { id: 'g5', text: 'Attend group session', done: false },
-];
+const DEFAULT_GOALS: Goal[] = [];
 
 function getStorageKey(userId: string) {
   const today = new Date().toISOString().split('T')[0];
@@ -81,15 +75,16 @@ export default function TodaysGoalWidget({ userId }: TodaysGoalWidgetProps) {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Today's goal</span>
-        <span
+        <button type="button"
           onClick={() => setIsEditing(!isEditing)}
-          style={{ fontSize: '11px', color: '#635bff', cursor: 'pointer', fontWeight: '600' }}
+          style={{ fontSize: '11px', color: '#635bff', cursor: 'pointer', fontWeight: '600', border: 0, background: 'transparent' }}
         >
           {isEditing ? 'Done' : 'Edit'}
-        </span>
+        </button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+        {goals.length === 0 && !isEditing && <p style={{ color: '#9a9cb8', fontSize: '11px', lineHeight: 1.5 }}>No goals yet. Add one small task for this study session.</p>}
         {goals.map((g) => (
           <div
             key={g.id}
@@ -99,10 +94,9 @@ export default function TodaysGoalWidget({ userId }: TodaysGoalWidgetProps) {
               cursor: 'pointer', padding: '2px 0',
             }}
           >
-            <div
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}
-              onClick={() => toggleGoal(g.id)}
-            >
+            <button type="button" aria-pressed={g.done}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, border: 0, background: 'transparent', color: 'inherit', textAlign: 'left', cursor: 'pointer', padding: 0 }}
+              onClick={() => toggleGoal(g.id)}>
               <span style={{
                 width: '14px', height: '14px', borderRadius: '4px', flexShrink: 0,
                 background: g.done ? '#5e43ff' : 'transparent',
@@ -115,7 +109,7 @@ export default function TodaysGoalWidget({ userId }: TodaysGoalWidgetProps) {
               <span style={{ textDecoration: g.done ? 'line-through' : 'none', opacity: g.done ? 0.6 : 1 }}>
                 {g.text}
               </span>
-            </div>
+            </button>
             {isEditing && (
               <button
                 onClick={() => removeGoal(g.id)}

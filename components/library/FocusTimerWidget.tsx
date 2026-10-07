@@ -22,16 +22,6 @@ export default function FocusTimerWidget({
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [sessionActive, setSessionActive] = useState(false);
-  const [activeSound, setActiveSound] = useState<string | null>(null);
-
-  const sounds = [
-    { id: 'rain', label: '🌧️', title: 'Rain' },
-    { id: 'lofi', label: '🎹', title: 'Lo-fi' },
-    { id: 'cafe', label: '☕', title: 'Café' },
-    { id: 'waves', label: '🌊', title: 'Waves' },
-    { id: 'white', label: '📻', title: 'White noise' },
-  ];
-
   // Timer countdown
   useEffect(() => {
     if (!isRunning) return;
@@ -155,28 +145,8 @@ export default function FocusTimerWidget({
         </button>
       </div>
 
-      {/* Ambient Sound Bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'rgba(0, 0, 0, 0.25)', padding: '6px 10px', borderRadius: '8px',
-      }}>
-        <span style={{ fontSize: '10px', color: '#8b8ea9' }}>Ambient:</span>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          {sounds.map((s) => (
-            <button
-              key={s.id}
-              title={s.title}
-              onClick={() => setActiveSound(activeSound === s.id ? null : s.id)}
-              style={{
-                background: activeSound === s.id ? 'rgba(99, 91, 255, 0.4)' : 'transparent',
-                border: 'none', borderRadius: '4px', padding: '2px 4px',
-                fontSize: '13px', cursor: 'pointer',
-              }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+      <div style={{ fontSize: '10px', color: '#8b8ea9', textAlign: 'center' }}>
+        Timer runs in this tab. Pause it any time.
       </div>
     </div>
   );
