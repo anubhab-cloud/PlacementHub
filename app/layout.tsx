@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import AppShell from '@/components/AppShell';
@@ -6,6 +6,14 @@ import AppShell from '@/components/AppShell';
 export const metadata: Metadata = {
   title: 'PlacementHub — Your All-in-One Prep Platform',
   description: 'Code, prepare, and land your dream job. PlacementHub combines DSA practice, AI coaching, university resources, and a live portfolio in one powerful dashboard.',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#0e0e11',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

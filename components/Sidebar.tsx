@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -14,7 +15,8 @@ import {
   Library,
   BookOpen,
   Settings,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 
 const navItems = [
@@ -33,16 +35,32 @@ const footerItems = [
   { label: 'Virtual Lib', href: '/virtual-lib', icon: BookOpen },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
   return (
-    <aside className="sidebar-purple-container">
+    <aside className={`sidebar-purple-container ${mobileOpen ? 'mobile-open' : ''}`}>
       {/* Top Logo Box */}
       <div className="sidebar-logo-white-pill" title="PlacementHub">
         <div className="logo-icon-purple">P</div>
         <span className="logo-text-dark">PlacementHub</span>
+        {/* Mobile close button */}
+        {onClose && (
+          <button
+            type="button"
+            className="sidebar-mobile-close-btn"
+            onClick={onClose}
+            aria-label="Close sidebar navigation"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* User Card Profile Box */}
@@ -63,6 +81,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`sidebar-dark-pill ${isActive ? 'active' : ''}`}
               title={item.label}
             >
@@ -85,6 +104,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`sidebar-dark-pill ${isActive ? 'active' : ''}`}
               title={item.label}
             >
@@ -103,7 +123,7 @@ export default function Sidebar() {
           <path d="M1 11C1 11 1 1 17 1C33 1 33 11 33 11" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
 
-        <Link href="/settings" className="sidebar-action-icon" title="Settings">
+        <Link href="/settings" onClick={onClose} className="sidebar-action-icon" title="Settings">
           <User size={24} className="icon-grey" strokeWidth={1.5} />
         </Link>
 

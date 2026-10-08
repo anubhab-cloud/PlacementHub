@@ -712,7 +712,7 @@ export default function WorkspacePage() {
       )}
 
       {/* ── Main Split ──────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '420px 1fr', gap: '16px', minHeight: 0 }}>
+      <div className="workspace-main-split">
         {/* LEFT PANEL */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minHeight: 0, overflow: 'hidden' }}>
           {/* Tab Bar */}

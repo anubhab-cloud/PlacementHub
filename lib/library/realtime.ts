@@ -25,7 +25,7 @@ export function subscribeToRooms(onChange: () => void) {
   const channel = supabase.channel('vlib_rooms_catalog');
   channel.on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, onChange);
   channel.subscribe();
-  return () => { void supabase.removeChannel(channel); };
+  return () => { if (supabase) void supabase.removeChannel(channel); };
 }
 
 /**

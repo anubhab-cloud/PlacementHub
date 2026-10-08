@@ -4973,6 +4973,230 @@ body {
 @media (max-width: 740px) { .vlib-page { padding: 18px 14px 32px; } .vlib-topbar { align-items: flex-start; } .vlib-connection { display: none; } .vlib-intro { align-items: flex-start; flex-direction: column; } .vlib-metrics { width: 100%; } .vlib-metrics div { flex: 1; } .vlib-layout { grid-template-columns: 1fr; } .vlib-nav { position: static; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; padding: 8px; } .vlib-nav-label,.vlib-nav-tip { display: none; } .vlib-nav > button { justify-content: center; margin: 0; padding: 8px 4px; font-size: 10px; } .vlib-nav > button span { display: none; } .vlib-room-cards { grid-template-columns: 1fr; } .vlib-chat-shell { grid-column: auto; } .vlib-section-heading { align-items: flex-start; flex-direction: column; } .vlib-search { width: 100%; min-width: 0; } .vlib-room-detail-heading { align-items: flex-start; flex-direction: column; } .vlib-focus-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .vlib-page * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Comprehensive Multi-Device Compatibility (Phone, Tablet & Desktop Web)
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Mobile Sidebar Backdrop Overlay */
+.mobile-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Mobile Hamburger Button in Topbar */
+.mobile-hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md, 12px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-1, #ffffff);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+.mobile-hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-mobile-close-btn {
+  display: none;
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm, 8px);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-1, #ffffff);
+  border: none;
+  cursor: pointer;
+}
+
+/* Base Responsive & Overflow Adjustments */
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+}
+
+pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Tablet & Mobile Screens (<= 1024px) */
+@media (max-width: 1024px) {
+  .mobile-hamburger-btn {
+    display: flex !important;
+  }
+  .sidebar-mobile-close-btn {
+    display: flex !important;
+  }
+
+  .playful-theme .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Transform Sidebar into Slide-out Off-screen Drawer */
+  .playful-theme .sidebar-purple-container {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    z-index: 999 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow-y: auto !important;
+    box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .playful-theme .sidebar-purple-container.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .playful-theme .sidebar-purple-container.mobile-open .logo-text-dark,
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-user-info,
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-pill-text,
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-pill-badge,
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-user-dark-card,
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-nav-pills,
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-footer-pills {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .playful-theme .sidebar-purple-container.mobile-open .sidebar-logo-white-pill {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    padding: 9px 12px !important;
+    gap: 10px !important;
+  }
+
+  /* Grid layouts collapse to single column */
+  .dashboard-grid,
+  .dashboard-row-grid,
+  .dashboard-home-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .prep-widget,
+  .warmup-widget,
+  .ai-widget,
+  .events-widget,
+  .portfolio-widget,
+  .videos-widget,
+  .contrib-widget {
+    grid-column: span 12 !important;
+  }
+
+  /* General Page Containers padding */
+  .dashboard-container,
+  .page-content,
+  .main-content {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* Mobile Phone View (<= 640px) */
+@media (max-width: 640px) {
+  html {
+    font-size: 13px;
+  }
+
+  .topbar-clean-container {
+    padding: 0 12px !important;
+  }
+
+  .topbar-page-title {
+    font-size: 15px !important;
+  }
+
+  .live-sync-pill,
+  .topbar-right-badge {
+    display: none !important;
+  }
+
+  .topbar-search-pill {
+    max-width: 150px !important;
+    padding: 4px 8px !important;
+  }
+
+  .topbar-search-pill input {
+    font-size: 11px !important;
+  }
+
+  /* Modal windows fit mobile screen */
+  .modal-box,
+  .login-modal,
+  .vlib-modal .vlib-modal-box {
+    width: 92vw !important;
+    max-width: 95vw !important;
+    padding: 16px !important;
+    margin: 12px auto !important;
+  }
+
+  /* Floating AI chatbot window fits phone screen */
+  .floating-chatbot-container .chatbot-window {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 76px !important;
+    width: auto !important;
+    max-width: none !important;
+    height: 70vh !important;
+    max-height: 520px !important;
+  }
+
+  .floating-chatbot-trigger {
+    bottom: 16px !important;
+    right: 16px !important;
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  /* Responsive Cards & Tables */
+  .card, .widget {
+    border-radius: 12px !important;
+  }
+
+  .stat-num {
+    font-size: 16px !important;
+  }
+}
+
+/* Workspace Main Split Layout */
+.workspace-main-split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 16px;
+  min-height: 0;
+}
+
+@media (max-width: 1024px) {
+  .workspace-main-split {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+}
+
 
 
 

@@ -2,9 +2,21 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Menu, X } from 'lucide-react';
 
-export default function Topbar({ isDarkTheme, onToggleTheme }: { isDarkTheme: boolean; onToggleTheme: () => void }) {
+interface TopbarProps {
+  isDarkTheme: boolean;
+  onToggleTheme: () => void;
+  isMobileMenuOpen?: boolean;
+  onToggleMobileMenu?: () => void;
+}
+
+export default function Topbar({
+  isDarkTheme,
+  onToggleTheme,
+  isMobileMenuOpen,
+  onToggleMobileMenu,
+}: TopbarProps) {
   const [query, setQuery] = useState('');
   const pathname = usePathname();
   const { user } = useAuth();
@@ -32,6 +44,19 @@ export default function Topbar({ isDarkTheme, onToggleTheme }: { isDarkTheme: bo
   return (
     <header className="topbar-clean-container">
       <div className="topbar-main-row">
+        {/* Mobile Hamburger Toggle Button */}
+        {onToggleMobileMenu && (
+          <button
+            type="button"
+            className="mobile-hamburger-btn"
+            onClick={onToggleMobileMenu}
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            title={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        )}
+
         <div className="topbar-title-group">
           <h1 className="topbar-page-title">{getTitle()}</h1>
           <div className="live-sync-pill">

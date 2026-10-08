@@ -15,11 +15,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setIsDarkTheme(window.localStorage.getItem('placementhub-theme') !== 'light');
   }, []);
+
+  // Close mobile navigation drawer whenever route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const toggleTheme = () => {
     setIsDarkTheme((current) => {
@@ -47,9 +53,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={`playful-theme ${themeClass}`} suppressHydrationWarning>
       <div className={`app-shell playful-theme ${themeClass}${pathname.startsWith('/companies') ? ' directory-theme' : ''}`}>
-        <Sidebar />
+        {/* Mobile Backdrop Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="mobile-sidebar-backdrop"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        <Sidebar
+          mobileOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
         <div className="main-content">
-          <Topbar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
+          <Topbar
+            isDarkTheme={isDarkTheme}
+            onToggleTheme={toggleTheme}
+            isMobileMenuOpen={isMobileMenuOpen}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
           <main className="page-content">{children}</main>
           <SiteFooter />
         </div>
