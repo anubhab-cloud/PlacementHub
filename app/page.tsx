@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import PrepSummaryWidget from '@/components/widgets/PrepSummaryWidget';
 import BrainWarmupWidget from '@/components/widgets/BrainWarmupWidget';
 import AIInsightsWidget from '@/components/widgets/AIInsightsWidget';
@@ -11,9 +12,10 @@ import ContributionGraphWidget from '@/components/widgets/ContributionGraphWidge
 import Link from 'next/link';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [dateString, setDateString] = useState('');
   const [pendingOAs, setPendingOAs] = useState(1);
-  const userName = 'Anubhab';
+  const userName = user?.name ? user.name.split(' ')[0] : 'Student';
 
   useEffect(() => {
     const now = new Date();

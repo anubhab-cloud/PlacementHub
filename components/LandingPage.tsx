@@ -56,7 +56,7 @@ const reviews = [
 export default function LandingPage({ isDarkTheme, onToggleTheme }: { isDarkTheme: boolean; onToggleTheme: () => void }) {
   const { openLoginModal, login } = useAuth();
 
-  const handleDemoAccess = () => login('anubhab@nexusprep.io', 'Anubhab C.');
+  const handleDemoAccess = () => login('demo@nexusprep.io', 'Demo Candidate');
 
   return (
     <div className="homepage">
@@ -101,7 +101,7 @@ export default function LandingPage({ isDarkTheme, onToggleTheme }: { isDarkThem
           </div>
 
           <div className="homepage-preview" aria-label="PlacementHub dashboard preview">
-            <div className="homepage-preview-bar"><i /><i /><i /><code>placementhub.app/dashboard/anubhab</code></div>
+            <div className="homepage-preview-bar"><i /><i /><i /><code>placementhub.app/dashboard/student</code></div>
             <div className="homepage-preview-grid">
               <article className="homepage-preview-card">
                 <small>DSA prep tracker</small>

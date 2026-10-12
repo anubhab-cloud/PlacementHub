@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 const themes = [
   { id: 'cyberpunk', label: 'Cyberpunk Neon', desc: 'Glowing cyan and electric gradients', accent: '#06b6d4' },
@@ -16,9 +17,10 @@ const INITIAL_PROJECTS = [
 ];
 
 export default function PortfolioPage() {
+  const { user } = useAuth();
   const [theme, setTheme]       = useState('cyberpunk');
-  const [name, setName]         = useState('Anubhab Chakraborty');
-  const [username, setUsername] = useState('anubhab');
+  const [name, setName]         = useState(user?.name || 'Student Developer');
+  const [username, setUsername] = useState(user?.name ? user.name.toLowerCase().replace(/[^a-z0-9]/g, '') : 'student');
   const [bio, setBio]           = useState('Computer Science Student · Full-stack developer passionate about DSA, AI & System Architecture.');
   const [copied, setCopied]     = useState(false);
   const [saved, setSaved]       = useState(false);
@@ -35,10 +37,13 @@ export default function PortfolioPage() {
           if (parsed.username) setUsername(parsed.username);
           if (parsed.bio) setBio(parsed.bio);
           if (parsed.theme) setTheme(parsed.theme);
+        } else if (user?.name) {
+          setName(user.name);
+          setUsername(user.name.toLowerCase().replace(/[^a-z0-9]/g, ''));
         }
       } catch {}
     }
-  }, []);
+  }, [user]);
 
   const tc: Record<string, { bg: string; accent: string; border: string; text: string }> = {
     cyberpunk: { bg: 'linear-gradient(135deg,#050a14,#0a1530)', accent: '#06b6d4', border: '#06b6d440', text: '#e0f7ff' },

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 interface Message {
   id: string;
@@ -17,12 +18,14 @@ const QUICK_PROMPTS = [
 ];
 
 export default function FloatingChatbot() {
+  const { user } = useAuth();
+  const firstName = user?.name ? user.name.split(' ')[0] : 'there';
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       sender: 'agent',
-      text: 'Hey Anubhab! 👋 I\'m your **PlacementHub AI Buddy**! Don\'t fall asleep on your keyboard like me — ask me anything about DSA, resume tips, or mock interviews!',
+      text: `Hey ${firstName}! 👋 I'm your **PlacementHub AI Buddy**! Ask me anything about DSA, resume tips, or mock interviews!`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);

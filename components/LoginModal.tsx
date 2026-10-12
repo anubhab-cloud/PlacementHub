@@ -16,19 +16,20 @@ export default function LoginModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) return;
     setIsLoading(true);
     setTimeout(() => {
-      login(email || 'anubhab@nexusprep.io', name || 'Anubhab C.');
+      login(email.trim(), activeTab === 'signup' && name.trim() ? name.trim() : undefined);
       setIsLoading(false);
-    }, 800);
+    }, 600);
   };
 
   const handleProviderLogin = (provider: 'google' | 'github') => {
     setIsLoading(true);
     setTimeout(() => {
-      loginWithProvider(provider);
+      loginWithProvider(provider, name.trim() || undefined, email.trim() || undefined);
       setIsLoading(false);
-    }, 700);
+    }, 600);
   };
 
   return (
@@ -122,7 +123,7 @@ export default function LoginModal() {
               <label>Full Name</label>
               <input
                 type="text"
-                placeholder="Anubhab Chakraborty"
+                placeholder="Alex Morgan"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required={activeTab === 'signup'}
@@ -134,7 +135,7 @@ export default function LoginModal() {
             <label>Email Address</label>
             <input
               type="email"
-              placeholder="anubhab@nexusprep.io"
+              placeholder="alex@nexusprep.io"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

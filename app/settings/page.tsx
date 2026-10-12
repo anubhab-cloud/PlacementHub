@@ -53,9 +53,9 @@ interface UserSettings {
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
-  name: 'Anubhab Chakraborty',
-  username: 'anubhab-cloud',
-  email: 'anubhab@nexusprep.io',
+  name: 'Student Candidate',
+  username: 'student-dev',
+  email: 'student@nexusprep.io',
   bio: 'CS Student & Competitive Programmer targeting SDE-1 roles.',
   college: '',
   graduationYear: '2025',
@@ -63,12 +63,12 @@ const DEFAULT_SETTINGS: UserSettings = {
   website: '',
   targetRole: 'Software Development Engineer (SDE-1)',
   targetCompanies: 'Google, Microsoft, Meta',
-  githubUser: 'anubhab-cloud',
-  leetcodeUser: 'anubhab_dev',
+  githubUser: '',
+  leetcodeUser: '',
   codeforcesUser: '',
   codechefUser: '',
   gfgUser: '',
-  linkedinUrl: 'https://linkedin.com/in/anubhab-chakraborty',
+  linkedinUrl: '',
   twitterUrl: '',
   portfolioUrl: '',
   skills: 'C++, Python, React, Node.js, SQL, DSA, System Design',
@@ -419,6 +419,7 @@ export default function SettingsPage() {
         ...prev,
         name: user.name || prev.name,
         email: user.email || prev.email,
+        username: user.name ? user.name.toLowerCase().replace(/[^a-z0-9]/g, '') : prev.username,
       }));
     }
     const raw = localStorage.getItem('placementhub_settings');

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 type Message = { role: 'user' | 'assistant'; text: string; loading?: boolean };
@@ -14,8 +15,10 @@ const QUICK_PROMPTS = [
 ];
 
 export default function AIPage() {
+  const { user } = useAuth();
+  const firstName = user?.name ? user.name.split(' ')[0] : 'there';
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', text: "Hi Anubhab! I'm your AI performance analyst. I can analyze your coding patterns, create personalized study plans, and help you crack interviews. How can I help today?" },
+    { role: 'assistant', text: `Hi ${firstName}! I'm your AI performance analyst. I can analyze your coding patterns, create personalized study plans, and help you crack interviews. How can I help today?` },
   ]);
   const [input, setInput]       = useState('');
   const [loading, setLoading]   = useState(false);

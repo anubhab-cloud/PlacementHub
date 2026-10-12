@@ -82,8 +82,35 @@ function Interactive3DProjectDeck({ accentColor }: { accentColor: string }) {
 }
 
 export default function PublicPortfolioPage({ params }: { params: { username: string } }) {
-  const username = params?.username || 'anubhab';
+  const username = params?.username || 'student';
+  const derivedName = username
+    .split(/[-_]+/)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ') || 'Student Portfolio';
+  const derivedInitials = derivedName
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w[0].toUpperCase())
+    .slice(0, 2)
+    .join('') || 'SP';
+
+  const [profileName, setProfileName] = useState(derivedName);
+  const [profileInitials, setProfileInitials] = useState(derivedInitials);
   const [theme, setTheme] = useState<'cyberpunk' | 'stark' | 'corporate'>('cyberpunk');
+
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('placementhub_portfolio');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        if (parsed.name) {
+          setProfileName(parsed.name);
+          const inits = parsed.name.split(' ').filter(Boolean).map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+          if (inits) setProfileInitials(inits);
+        }
+      }
+    } catch {}
+  }, []);
 
   const themes = {
     cyberpunk: { name: 'Cyberpunk Neon', bg: '#000000', accent: '#00d4ff', cardBg: '#0f0f0f', text: '#f0f4ff' },
@@ -144,12 +171,12 @@ export default function PublicPortfolioPage({ params }: { params: { username: st
               boxShadow: `0 0 30px ${current.accent}50`,
               flexShrink: 0,
             }}>
-              AC
+              {profileInitials}
             </div>
 
             <div style={{ flex: 1, minWidth: '240px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '32px', fontWeight: 800, margin: 0 }}>Anubhab Chakraborty</h1>
+                <h1 style={{ fontSize: '32px', fontWeight: 800, margin: 0 }}>{profileName}</h1>
                 <span style={{ fontSize: '11px', padding: '4px 12px', borderRadius: '100px', background: `${current.accent}20`, color: current.accent, border: `1px solid ${current.accent}40`, fontWeight: 700 }}>
                   Verified Candidate ✓
                 </span>

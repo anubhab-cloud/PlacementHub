@@ -1,11 +1,14 @@
 'use client';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 const themes = ['Cyberpunk', 'Stark', 'Violet'];
 const tags = ['ArmedaSona', 'Spam Detect', 'IoT Sensor'];
 
 export default function PortfolioPreviewWidget() {
+  const { user } = useAuth();
   const [activeTheme, setActiveTheme] = useState('Cyberpunk');
+  const userSlug = user?.name ? user.name.toLowerCase().replace(/[^a-z0-9]/g, '') : 'student';
 
   return (
     <div className="dashboard-widget-card">
@@ -42,7 +45,7 @@ export default function PortfolioPreviewWidget() {
         </div>
 
         <div className="portfolio-footer-row">
-          <span className="portfolio-link-text">platform.com/anubhab</span>
+          <span className="portfolio-link-text">platform.com/{userSlug}</span>
           <button className="portfolio-share-btn">Share</button>
         </div>
       </div>

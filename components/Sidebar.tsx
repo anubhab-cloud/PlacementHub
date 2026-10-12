@@ -42,7 +42,7 @@ interface SidebarProps {
 
 export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, openLoginModal } = useAuth();
 
   return (
     <aside className={`sidebar-purple-container ${mobileOpen ? 'mobile-open' : ''}`}>
@@ -64,11 +64,16 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       </div>
 
       {/* User Card Profile Box */}
-      <div className="sidebar-user-dark-card" title={user?.name || 'Anubhab Chakraborty'}>
-        <div className="sidebar-user-avatar">{user?.avatar || 'AC'}</div>
+      <div
+        className="sidebar-user-dark-card"
+        title={user?.name || 'Sign In'}
+        onClick={!user ? () => openLoginModal('login') : undefined}
+        style={{ cursor: !user ? 'pointer' : 'default' }}
+      >
+        <div className="sidebar-user-avatar">{user?.avatar || (user?.name ? user.name.slice(0, 2).toUpperCase() : '👤')}</div>
         <div className="sidebar-user-info">
-          <div className="sidebar-user-name">{user?.name || 'Anubhab Chakraborty'}</div>
-          <div className="sidebar-user-sub">Placement prep · Pro</div>
+          <div className="sidebar-user-name">{user?.name || 'Guest Student'}</div>
+          <div className="sidebar-user-sub">{user ? 'Placement prep · Pro' : 'Tap to sign in'}</div>
         </div>
       </div>
 

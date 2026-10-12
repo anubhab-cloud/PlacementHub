@@ -16,13 +16,30 @@ interface AuthContextType {
   isModalOpen: boolean;
   modalMode: 'login' | 'signup';
   login: (email: string, name?: string) => void;
-  loginWithProvider: (provider: 'google' | 'github') => void;
+  loginWithProvider: (provider: 'google' | 'github', customName?: string, customEmail?: string) => void;
   logout: () => void;
   openLoginModal: (mode?: 'login' | 'signup') => void;
   closeLoginModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function formatNameFromEmail(email: string): string {
+  if (!email) return 'Student';
+  const prefix = email.split('@')[0] || 'Student';
+  const parts = prefix.split(/[._\-+]+/).filter(Boolean);
+  if (parts.length === 0) return 'Student';
+  return parts
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'ST';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -36,32 +53,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        setIsLoggedIn(true);
+        if (parsed && parsed.name && parsed.email) {
+          setUser(parsed);
+          setIsLoggedIn(true);
+          return;
+        }
       } catch (e) {
-        // Fallback default user
-        setUser({ name: 'Anubhab C.', email: 'anubhab@nexusprep.io', avatar: 'AC' });
-        setIsLoggedIn(true);
+        setUser(null);
+        setIsLoggedIn(false);
       }
     } else {
-      // Default to logged in as Anubhab for instant preview, but allow user to log out / in
-      setUser({ name: 'Anubhab C.', email: 'anubhab@nexusprep.io', avatar: 'AC' });
-      setIsLoggedIn(true);
+      setUser(null);
+      setIsLoggedIn(false);
     }
   }, []);
 
   const login = (email: string, name?: string) => {
-    const userName = name || email.split('@')[0] || 'Anubhab C.';
-    const initials = userName
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'AC';
+    const cleanEmail = (email || '').trim();
+    let accounts: Record<string, { name: string; email: string }> = {};
+    try {
+      const stored = localStorage.getItem('placementhub_accounts');
+      if (stored) accounts = JSON.parse(stored);
+    } catch (e) {}
+
+    let userName = name?.trim();
+    if (userName) {
+      // Save to registered accounts cache
+      accounts[cleanEmail.toLowerCase()] = { name: userName, email: cleanEmail };
+      try {
+        localStorage.setItem('placementhub_accounts', JSON.stringify(accounts));
+      } catch (e) {}
+    } else {
+      if (accounts[cleanEmail.toLowerCase()]?.name) {
+        userName = accounts[cleanEmail.toLowerCase()].name;
+      } else {
+        userName = formatNameFromEmail(cleanEmail);
+      }
+    }
+
+    const initials = getInitials(userName);
 
     const newUser: User = {
       name: userName,
-      email: email || 'anubhab@nexusprep.io',
+      email: cleanEmail,
       avatar: initials,
       role: 'SDE Aspirant',
       targetCompany: 'Google / Meta',
@@ -73,10 +107,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsModalOpen(false);
   };
 
-  const loginWithProvider = (provider: 'google' | 'github') => {
-    const name = provider === 'google' ? 'Anubhab Chakraborty' : 'anubhab-cloud';
-    const email = provider === 'google' ? 'anubhab.chakraborty@gmail.com' : 'anubhab.github@dev.io';
-    login(email, name);
+  const loginWithProvider = (provider: 'google' | 'github', customName?: string, customEmail?: string) => {
+    let name = customName?.trim();
+    let email = customEmail?.trim();
+
+    if (!name && !email) {
+      if (provider === 'google') {
+        name = 'Google Student';
+        email = 'student@google.com';
+      } else {
+        name = 'GitHub Developer';
+        email = 'developer@github.com';
+      }
+    } else if (!name && email) {
+      name = formatNameFromEmail(email);
+    } else if (name && !email) {
+      email = `${name.toLowerCase().replace(/\s+/g, '')}@${provider}.com`;
+    }
+
+    login(email || `${provider}-user@nexusprep.io`, name);
   };
 
   const logout = () => {
