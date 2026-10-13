@@ -74,7 +74,7 @@ export default function TodaysGoalWidget({ userId }: TodaysGoalWidgetProps) {
       justifyContent: 'space-between', height: '100%',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Today's goal</span>
+        <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Today&apos;s goal</span>
         <button type="button"
           onClick={() => setIsEditing(!isEditing)}
           style={{ fontSize: '11px', color: '#635bff', cursor: 'pointer', fontWeight: '600', border: 0, background: 'transparent' }}

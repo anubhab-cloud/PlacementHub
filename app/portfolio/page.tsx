@@ -29,19 +29,35 @@ export default function PortfolioPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setOrigin(window.location.origin);
-      try {
-        const savedData = localStorage.getItem('placementhub_portfolio');
-        if (savedData) {
-          const parsed = JSON.parse(savedData);
-          if (parsed.name) setName(parsed.name);
-          if (parsed.username) setUsername(parsed.username);
-          if (parsed.bio) setBio(parsed.bio);
-          if (parsed.theme) setTheme(parsed.theme);
-        } else if (user?.name) {
-          setName(user.name);
-          setUsername(user.name.toLowerCase().replace(/[^a-z0-9]/g, ''));
-        }
-      } catch {}
+      const handle = user?.name ? user.name.toLowerCase().replace(/[^a-z0-9-]/g, '') : 'student';
+
+      // Load from server API first
+      fetch(`/api/portfolio?username=${handle}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.portfolio) {
+            if (data.portfolio.name) setName(data.portfolio.name);
+            if (data.portfolio.username) setUsername(data.portfolio.username);
+            if (data.portfolio.bio) setBio(data.portfolio.bio);
+            if (data.portfolio.theme) setTheme(data.portfolio.theme);
+          }
+        })
+        .catch(() => {
+          // Fallback to localStorage
+          try {
+            const savedData = localStorage.getItem('placementhub_portfolio');
+            if (savedData) {
+              const parsed = JSON.parse(savedData);
+              if (parsed.name) setName(parsed.name);
+              if (parsed.username) setUsername(parsed.username);
+              if (parsed.bio) setBio(parsed.bio);
+              if (parsed.theme) setTheme(parsed.theme);
+            } else if (user?.name) {
+              setName(user.name);
+              setUsername(user.name.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+            }
+          } catch {}
+        });
     }
   }, [user]);
 
@@ -54,11 +70,18 @@ export default function PortfolioPage() {
 
   const publicUrl = `${origin}/student/${username.toLowerCase().replace(/\s+/g, '-')}`;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const portfolioObj = { name, username, bio, theme };
     try {
       localStorage.setItem('placementhub_portfolio', JSON.stringify(portfolioObj));
-    } catch {}
+      await fetch('/api/portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(portfolioObj),
+      });
+    } catch (err) {
+      console.warn('Portfolio sync warning:', err);
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };

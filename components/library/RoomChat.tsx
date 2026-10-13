@@ -83,7 +83,7 @@ export default function RoomChat({
         {messages.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-3)', fontSize: '12px' }}>
             <div style={{ fontSize: '24px', marginBottom: '8px' }}>👋</div>
-            You're the first one here. Say hello to your study peers!
+            You&apos;re the first one here. Say hello to your study peers!
           </div>
         ) : (
           messages.map((msg) => {

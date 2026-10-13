@@ -29,7 +29,7 @@ export default function StudyGoalModal({
       <div className="modal-box" style={{ width: '460px', background: 'rgba(18, 19, 26, 0.95)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-1)' }}>
-            🎯 Set Today's Study Goal
+            🎯 Set Today&apos;s Study Goal
           </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-3)', fontSize: '20px', cursor: 'pointer' }}>
             ×

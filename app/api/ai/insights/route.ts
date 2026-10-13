@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getAuthenticatedUser(req);
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Sign in required for AI insights' },
+        { status: 401 }
+      );
+    }
+
     const { stats } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 

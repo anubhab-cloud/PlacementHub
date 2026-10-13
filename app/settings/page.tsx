@@ -44,12 +44,6 @@ interface UserSettings {
   autoSaveCode: boolean;
   dailyReminder: boolean;
   aiCoachingLevel: string;
-  // Integrations
-  judge0Key: string;
-  geminiKey: string;
-  githubToken: string;
-  supabaseUrl: string;
-  supabaseAnonKey: string;
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -77,11 +71,6 @@ const DEFAULT_SETTINGS: UserSettings = {
   autoSaveCode: true,
   dailyReminder: true,
   aiCoachingLevel: 'proactive',
-  judge0Key: '',
-  geminiKey: '',
-  githubToken: '',
-  supabaseUrl: '',
-  supabaseAnonKey: '',
 };
 
 // ─── TABS CONFIG ─────────────────────────────────────────────────
@@ -412,6 +401,32 @@ export default function SettingsPage() {
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
+  const [healthStatus, setHealthStatus] = useState<{
+    judge0: boolean;
+    gemini: boolean;
+    github: boolean;
+    supabase: boolean;
+  } | null>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
+
+  const fetchHealth = async () => {
+    setHealthLoading(true);
+    try {
+      const res = await fetch('/api/health');
+      if (res.ok) {
+        const data = await res.json();
+        setHealthStatus(data);
+      }
+    } catch {
+      // Offline / network failure
+    } finally {
+      setHealthLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHealth();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -424,7 +439,15 @@ export default function SettingsPage() {
     }
     const raw = localStorage.getItem('placementhub_settings');
     if (raw) {
-      try { setSettings((prev) => ({ ...prev, ...JSON.parse(raw) })); } catch {}
+      try {
+        const parsed = JSON.parse(raw);
+        delete parsed.judge0Key;
+        delete parsed.geminiKey;
+        delete parsed.githubToken;
+        delete parsed.supabaseUrl;
+        delete parsed.supabaseAnonKey;
+        setSettings((prev) => ({ ...prev, ...parsed }));
+      } catch {}
     }
   }, [user]);
 
@@ -847,169 +870,129 @@ export default function SettingsPage() {
             {/* ── TAB: INTEGRATIONS ── */}
             {activeTab === 'integrations' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <SectionTitle
-                  title="API Integrations"
-                  desc="Configure API keys to enable code compilation, AI coaching, and GitHub sync."
-                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                  <SectionTitle
+                    title="System Integrations & Services"
+                    desc="Production services are configured securely in server-side environment variables (.env.local) and never stored in client browsers."
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await fetchHealth();
+                      showToast('Integration status refreshed!');
+                    }}
+                    disabled={healthLoading}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '8px 16px', borderRadius: '6px',
+                      background: 'rgba(99, 91, 255, 0.15)', border: '1px solid rgba(99, 91, 255, 0.35)',
+                      color: '#a5b4fc', fontSize: '12px', fontWeight: '600', cursor: 'pointer',
+                    }}
+                  >
+                    {healthLoading ? 'Refreshing...' : '🔄 Refresh Service Health'}
+                  </button>
+                </div>
+
+                {/* Security Advisory Banner */}
+                <div style={{
+                  padding: '14px 18px', borderRadius: '10px',
+                  background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.25)',
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                }}>
+                  <span style={{ fontSize: '20px' }}>🛡️</span>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5' }}>
+                    <strong style={{ color: '#e2e8f0' }}>Production Security Standard:</strong> Private keys (Judge0, Gemini AI, GitHub PAT, Supabase Service Role) are verified server-side only. Client storage of sensitive credentials has been decommissioned.
+                  </div>
+                </div>
 
                 {/* Integration cards */}
                 {[
                   {
                     id: 'judge0',
                     icon: '⚙️',
-                    title: 'Judge0 Code Execution',
-                    desc: 'Executes C++, Java, Python in a sandbox. Get a free key from RapidAPI.',
-                    label: 'JUDGE0_API_KEY',
-                    key: 'judge0Key' as keyof UserSettings,
-                    placeholder: 'Paste your RapidAPI key...',
-                    status: 'RapidAPI',
-                    statusColor: '#38bdf8',
+                    title: 'Judge0 Sandbox Engine',
+                    desc: 'Compiles and executes C++, Java, Python sandbox solutions. Configured via JUDGE0_API_KEY in .env.local.',
+                    active: !!healthStatus?.judge0,
+                    provider: 'RapidAPI / Judge0',
                   },
                   {
                     id: 'gemini',
                     icon: '🤖',
-                    title: 'Google Gemini AI',
-                    desc: 'Powers the AI Coach chatbot and mock interview agent.',
-                    label: 'GEMINI_API_KEY',
-                    key: 'geminiKey' as keyof UserSettings,
-                    placeholder: 'AIzaSy...',
-                    status: 'Google AI Studio',
-                    statusColor: '#a78bfa',
+                    title: 'Google Gemini AI Engine',
+                    desc: 'Powers AI performance diagnostic analysis and interview coach. Configured via GEMINI_API_KEY in .env.local.',
+                    active: !!healthStatus?.gemini,
+                    provider: 'Google AI Studio',
                   },
                   {
                     id: 'github',
                     icon: '🐙',
-                    title: 'GitHub Auto-Push',
-                    desc: 'Automatically commits solved problems to your GitHub repo.',
-                    label: 'GITHUB_TOKEN (Personal Access Token)',
-                    key: 'githubToken' as keyof UserSettings,
-                    placeholder: 'ghp_...',
-                    status: 'GitHub',
-                    statusColor: '#10b981',
+                    title: 'GitHub Auto-Push Sync',
+                    desc: 'Automatically synchronizes solved problems to your repository. Configured via GITHUB_TOKEN & GITHUB_USERNAME in .env.local.',
+                    active: !!healthStatus?.github,
+                    provider: 'GitHub API / Octokit',
+                  },
+                  {
+                    id: 'supabase',
+                    icon: '⚡',
+                    title: 'Supabase Cloud Database',
+                    desc: 'PostgreSQL database and Realtime engine for study rooms and persistent records. Configured via NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
+                    active: !!healthStatus?.supabase,
+                    provider: 'Supabase PostgreSQL',
                   },
                 ].map((item) => (
                   <div key={item.id} style={{
                     background: '#0d1117', border: '1px solid #21262d',
                     borderRadius: '10px', padding: '20px',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '16px' }}>
-                      <span style={{ fontSize: '22px' }}>{item.icon}</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{item.title}</span>
-                          <span style={{
-                            padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '500',
-                            background: `${item.statusColor}18`, color: item.statusColor,
-                            border: `1px solid ${item.statusColor}30`,
-                          }}>
-                            {item.status}
-                          </span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <span style={{ fontSize: '24px' }}>{item.icon}</span>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{item.title}</span>
+                            <span style={{
+                              padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '500',
+                              background: '#21262d', color: '#94a3b8',
+                            }}>
+                              {item.provider}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{item.desc}</p>
                         </div>
-                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.5' }}>{item.desc}</p>
+                      </div>
+                      <div>
+                        {healthStatus === null ? (
+                          <span style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', background: 'rgba(148, 163, 184, 0.1)', color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.2)' }}>
+                            Checking...
+                          </span>
+                        ) : item.active ? (
+                          <span style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                            ● Active &amp; Configured
+                          </span>
+                        ) : (
+                          <span style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', background: 'rgba(234, 179, 8, 0.12)', color: '#facc15', border: '1px solid rgba(234, 179, 8, 0.25)' }}>
+                            ○ Not Configured (.env.local)
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <PasswordField
-                      label={item.label}
-                      value={settings[item.key] as string}
-                      onChange={(v) => set(item.key, v)}
-                      placeholder={item.placeholder}
-                      showKey={!!showKeys[item.id]}
-                      onToggleShow={() => toggleKey(item.id)}
-                    />
                   </div>
                 ))}
 
-                {/* Supabase block */}
-                <div style={{
-                  background: '#0d1117', border: '1px solid rgba(62, 207, 142, 0.25)',
-                  borderRadius: '10px', padding: '20px',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '16px' }}>
-                    <span style={{ fontSize: '22px' }}>⚡</span>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>Supabase Cloud DB</span>
-                        <span style={{
-                          padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '500',
-                          background: 'rgba(62, 207, 142, 0.1)', color: '#3ecf8e',
-                          border: '1px solid rgba(62, 207, 142, 0.25)',
-                        }}>
-                          PostgreSQL + Realtime
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.5' }}>
-                        Stores user accounts, problems, submissions, virtual library rooms, real-time chat messages, and study sessions.
-                      </p>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <Field label="NEXT_PUBLIC_SUPABASE_URL">
-                      <TextInput
-                        value={settings.supabaseUrl}
-                        onChange={(v) => set('supabaseUrl', v)}
-                        placeholder="https://your-project-ref.supabase.co"
-                      />
-                    </Field>
-                    <PasswordField
-                      label="NEXT_PUBLIC_SUPABASE_ANON_KEY"
-                      value={settings.supabaseAnonKey}
-                      onChange={(v) => set('supabaseAnonKey', v)}
-                      placeholder="eyJhbGciOiJIUzI1Ni..."
-                      showKey={!!showKeys['supabase']}
-                      onToggleShow={() => toggleKey('supabase')}
-                    />
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          showToast('Testing Supabase connection...');
-                          try {
-                            await fetch('/api/health');
-                            showToast('Connected to Supabase successfully!');
-                          } catch {
-                            showToast('Running in local demo mode. Add keys to enable cloud sync.');
-                          }
-                        }}
-                        style={{
-                          padding: '7px 14px', borderRadius: '6px',
-                          background: 'transparent', border: '1px solid rgba(62, 207, 142, 0.4)',
-                          color: '#3ecf8e', fontSize: '12px', fontWeight: '500', cursor: 'pointer',
-                        }}
-                      >
-                        ⚡ Test Connection
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => copyText(
-                          `NEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey}`,
-                          'Supabase config'
-                        )}
-                        style={{
-                          padding: '7px 14px', borderRadius: '6px',
-                          background: 'transparent', border: '1px solid #30363d',
-                          color: '#8b949e', fontSize: '12px', fontWeight: '500', cursor: 'pointer',
-                        }}
-                      >
-                        Copy SQL Schema
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* .env.local preview */}
+                {/* Server .env.local guide */}
                 <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: '10px', overflow: 'hidden' }}>
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     padding: '12px 16px', borderBottom: '1px solid #21262d',
                   }}>
                     <span style={{ fontSize: '12px', fontWeight: '600', color: '#8b949e', fontFamily: 'monospace' }}>
-                      📄 .env.local
+                      📄 Server Configuration Template (.env.example)
                     </span>
                     <button
                       type="button"
                       onClick={() => copyText(
-                        `JUDGE0_API_KEY=${settings.judge0Key || 'your_key'}\nGEMINI_API_KEY=${settings.geminiKey || 'your_key'}\nGITHUB_TOKEN=${settings.githubToken || 'your_token'}\nNEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || 'https://your-project.supabase.co'}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || 'your_anon_key'}`,
-                        '.env.local template'
+                        `JUDGE0_API_KEY=\nJUDGE0_API_HOST=judge0-ce.p.rapidapi.com\nGEMINI_API_KEY=\nGITHUB_TOKEN=\nGITHUB_USERNAME=\nNEXT_PUBLIC_SUPABASE_URL=\nNEXT_PUBLIC_SUPABASE_ANON_KEY=\nSUPABASE_SERVICE_ROLE_KEY=`,
+                        'Environment Template'
                       )}
                       style={{
                         padding: '4px 10px', borderRadius: '5px',
@@ -1017,23 +1000,29 @@ export default function SettingsPage() {
                         color: '#8b949e', fontSize: '11px', cursor: 'pointer',
                       }}
                     >
-                      Copy
+                      Copy Template
                     </button>
                   </div>
                   <pre style={{
                     margin: 0, padding: '16px', fontSize: '12px', color: '#79c0ff',
                     fontFamily: 'monospace', lineHeight: '1.7', overflowX: 'auto',
                   }}>
-{`JUDGE0_API_KEY=${settings.judge0Key || '<your_rapidapi_key>'}
-GEMINI_API_KEY=${settings.geminiKey || '<your_gemini_api_key>'}
-GITHUB_TOKEN=${settings.githubToken || '<ghp_your_token>'}
-NEXT_PUBLIC_SUPABASE_URL=${settings.supabaseUrl || '<https://xxx.supabase.co>'}
-NEXT_PUBLIC_SUPABASE_ANON_KEY=${settings.supabaseAnonKey || '<your_anon_key>'}`}
-                  </pre>
-                </div>
+{`# ── Code Compilation (RapidAPI Judge0) ────────────
+JUDGE0_API_KEY=your_rapidapi_key
+JUDGE0_API_HOST=judge0-ce.p.rapidapi.com
 
-                <div style={{ paddingTop: '8px', borderTop: '1px solid #21262d' }}>
-                  <SaveButton onClick={handleSave} label="Save API Keys" />
+# ── AI Coaching (Google Gemini) ───────────────────
+GEMINI_API_KEY=your_gemini_api_key
+
+# ── GitHub Auto-Push ──────────────────────────────
+GITHUB_TOKEN=your_personal_access_token
+GITHUB_USERNAME=your_github_username
+
+# ── Supabase Database & Auth ──────────────────────
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key`}
+                  </pre>
                 </div>
               </div>
             )}

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 // Simple 3D Interactive Card Canvas using Vanilla Canvas / 3D Projection for maximum stability
 function Interactive3DProjectDeck({ accentColor }: { accentColor: string }) {
@@ -82,7 +83,10 @@ function Interactive3DProjectDeck({ accentColor }: { accentColor: string }) {
 }
 
 export default function PublicPortfolioPage({ params }: { params: { username: string } }) {
-  const username = params?.username || 'student';
+  const routeParams = useParams();
+  const rawUsername = (routeParams?.username as string) || params?.username || 'student';
+  const username = decodeURIComponent(rawUsername);
+
   const derivedName = username
     .split(/[-_]+/)
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -96,21 +100,31 @@ export default function PublicPortfolioPage({ params }: { params: { username: st
 
   const [profileName, setProfileName] = useState(derivedName);
   const [profileInitials, setProfileInitials] = useState(derivedInitials);
+  const [bio, setBio] = useState('Computer Science & Engineering Student · DSA & Full-Stack Developer');
   const [theme, setTheme] = useState<'cyberpunk' | 'stark' | 'corporate'>('cyberpunk');
 
   useEffect(() => {
-    try {
-      const savedData = localStorage.getItem('placementhub_portfolio');
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
-        if (parsed.name) {
-          setProfileName(parsed.name);
-          const inits = parsed.name.split(' ').filter(Boolean).map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-          if (inits) setProfileInitials(inits);
+    // Hydrate student profile from server registry / database
+    fetch(`/api/portfolio?username=${encodeURIComponent(username)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.portfolio) {
+          if (data.portfolio.name) {
+            setProfileName(data.portfolio.name);
+            const inits = data.portfolio.name.split(' ').filter(Boolean).map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+            if (inits) setProfileInitials(inits);
+          }
+          if (data.portfolio.bio) setBio(data.portfolio.bio);
+          if (data.portfolio.theme && ['cyberpunk', 'stark', 'corporate'].includes(data.portfolio.theme)) {
+            setTheme(data.portfolio.theme as 'cyberpunk' | 'stark' | 'corporate');
+          }
         }
-      }
-    } catch {}
-  }, []);
+      })
+      .catch(() => {
+        setProfileName(derivedName);
+        setProfileInitials(derivedInitials);
+      });
+  }, [username, derivedName, derivedInitials]);
 
   const themes = {
     cyberpunk: { name: 'Cyberpunk Neon', bg: '#000000', accent: '#00d4ff', cardBg: '#0f0f0f', text: '#f0f4ff' },
@@ -182,7 +196,7 @@ export default function PublicPortfolioPage({ params }: { params: { username: st
                 </span>
               </div>
               <p style={{ fontSize: '14px', color: 'var(--text-2)', marginTop: '6px' }}>
-                Computer Science & Engineering Student · DSA & Full-Stack Developer
+                {bio}
               </p>
             </div>
 

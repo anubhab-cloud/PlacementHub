@@ -48,9 +48,9 @@ const steps = [
 ];
 
 const reviews = [
-  ['The readiness score told me what to fix before my Amazon OA. Super clear.', 'R', 'Riya', 'Final year, CSE'],
-  ['Study rooms keep me consistent. Quiet, focused, and nobody bothers you.', 'K', 'Karan', 'Third year, ISE'],
-  ['The AI coach pushed me on graphs until I stopped dreading them.', 'M', 'Meera', 'Final year, ECE'],
+  ['The readiness score told me what to fix before my Amazon OA. Super clear.', 'A', 'Arghadeep', 'NIT Agartala (NIT A)'],
+  ['Study rooms keep me consistent. Quiet, focused, and nobody bothers you.', 'D', 'Debjeet', 'VIT Bhopal (VIT B)'],
+  ['The AI coach pushed me on graphs until I stopped dreading them.', 'A', 'Atanu', 'Assam University'],
 ];
 
 export default function LandingPage({ isDarkTheme, onToggleTheme }: { isDarkTheme: boolean; onToggleTheme: () => void }) {

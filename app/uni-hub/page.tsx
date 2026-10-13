@@ -339,7 +339,7 @@ export default function UniHubPage() {
                 </div>
                 {docs.length === 0 ? (
                   <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
-                    No matching local files. Click "Scrape Web Data" to fetch!
+                    No matching local files. Click &ldquo;Scrape Web Data&rdquo; to fetch!
                   </div>
                 ) : (
                   docs.slice(0, 2).map(d => (
@@ -483,7 +483,7 @@ export default function UniHubPage() {
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
               {getSubjectDocs(activeSubject.id, activeSubject.code).length === 0 ? (
                 <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '30px 0' }}>
-                  No local files found for {activeSubject.code}. Click "Scrape Web Data" below to automatically fetch 5-module questions and end-sem PYQs.
+                  No local files found for {activeSubject.code}. Click &ldquo;Scrape Web Data&rdquo; below to automatically fetch 5-module questions and end-sem PYQs.
                 </div>
               ) : (
                 getSubjectDocs(activeSubject.id, activeSubject.code).map(d => (

@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
 const themes = ['Cyberpunk', 'Stark', 'Violet'];
@@ -8,7 +9,19 @@ const tags = ['ArmedaSona', 'Spam Detect', 'IoT Sensor'];
 export default function PortfolioPreviewWidget() {
   const { user } = useAuth();
   const [activeTheme, setActiveTheme] = useState('Cyberpunk');
-  const userSlug = user?.name ? user.name.toLowerCase().replace(/[^a-z0-9]/g, '') : 'student';
+  const [copied, setCopied] = useState(false);
+  const userSlug = user?.name ? user.name.toLowerCase().replace(/[^a-z0-9-]/g, '') : 'student';
+
+  const handleShare = () => {
+    const url = typeof window !== 'undefined' ? `${window.location.origin}/student/${userSlug}` : `/student/${userSlug}`;
+    if (navigator.share) {
+      navigator.share({ title: `${user?.name || 'Student'}'s Portfolio`, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <div className="dashboard-widget-card">
@@ -45,8 +58,12 @@ export default function PortfolioPreviewWidget() {
         </div>
 
         <div className="portfolio-footer-row">
-          <span className="portfolio-link-text">platform.com/{userSlug}</span>
-          <button className="portfolio-share-btn">Share</button>
+          <Link href={`/student/${userSlug}`} className="portfolio-link-text">
+            /student/{userSlug}
+          </Link>
+          <button className="portfolio-share-btn" onClick={handleShare}>
+            {copied ? '✓ Copied' : 'Share'}
+          </button>
         </div>
       </div>
     </div>

@@ -96,7 +96,7 @@ export default function VirtualLibHero({
         maxWidth: '280px', backdropFilter: 'blur(8px)',
       }}>
         <div style={{ fontSize: '13px', color: '#e2e8f0', fontStyle: 'italic', lineHeight: '1.5' }}>
-          "{quote.text}"
+          &ldquo;{quote.text}&rdquo;
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
           <div style={{

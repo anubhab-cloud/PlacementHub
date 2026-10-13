@@ -127,7 +127,7 @@ export default function InterviewsPage() {
                     <div style={{ marginBottom: '14px' }}>
                       <span style={{ fontSize: '11px', color: 'var(--green)', fontWeight: '700', textTransform: 'uppercase' }}>💡 Model Answer Example</span>
                       <p style={{ fontSize: '13px', color: 'var(--text-2)', marginTop: '4px', lineHeight: '1.6', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px' }}>
-                        "{q.sampleAnswer}"
+                        &ldquo;{q.sampleAnswer}&rdquo;
                       </p>
                     </div>
 

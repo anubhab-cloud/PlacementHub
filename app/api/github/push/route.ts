@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getAuthenticatedUser(req);
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Authentication required to push code to GitHub' },
+        { status: 401 }
+      );
+    }
+
     const { code, language, problemTitle, topic, platform } = await req.json();
 
     if (!code || !language || !problemTitle) {
@@ -13,20 +22,13 @@ export async function POST(req: NextRequest) {
     const username = process.env.GITHUB_USERNAME;
     const repoName = 'PlacementHub-DSA';
 
-    // ── Demo fallback ────────────────────────────────────
+    // ── Check GitHub configuration ─────────────────────────
     if (!token || !username) {
-      const platformDir = platform ? platform.toLowerCase() : (topic ?? 'dsa').toLowerCase().replace(/\s+/g, '-');
-      const ext = langExt(language);
-      const safeTitle = problemTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const path = `${platformDir}/${safeTitle}.${ext}`;
-
       return NextResponse.json({
-        success: true,
-        demo: true,
-        path,
-        message: `✅ Accepted on ${platform ? platform.toUpperCase() : 'PlacementHub'}! Saved to local session & synced to GitHub repository (${path}).`,
-        url: `https://github.com/${username ?? 'anubhab-cloud'}/${repoName}`,
-      });
+        success: false,
+        configured: false,
+        message: '⚠️ GitHub sync is unconfigured. Set GITHUB_TOKEN and GITHUB_USERNAME in .env.local to enable real commits.',
+      }, { status: 503 });
     }
 
     const octokit = new Octokit({ auth: token });
@@ -36,7 +38,10 @@ export async function POST(req: NextRequest) {
     try {
       await octokit.repos.get({ owner: username, repo: repoName });
       repoExists = true;
-    } catch {
+    } catch (err: any) {
+      if (err.status === 401 || err.message?.includes('Bad credentials')) {
+        throw new Error('Bad credentials: GITHUB_TOKEN is invalid or expired');
+      }
       repoExists = false;
     }
 
@@ -65,8 +70,8 @@ export async function POST(req: NextRequest) {
     } catch { /* file doesn't exist yet, that's fine */ }
 
     // 4. Commit the file
-    const content = Buffer.from(addHeader(code, problemTitle, language)).toString('base64');
-    const commitMsg = `✅ Add ${problemTitle} [${language}] — PlacementHub auto-push`;
+    const content = Buffer.from(addHeader(code, problemTitle, language, session.name)).toString('base64');
+    const commitMsg = `✅ Add ${problemTitle} [${language}] — PlacementHub auto-push (${session.name})`;
 
     const { data: fileData } = await octokit.repos.createOrUpdateFileContents({
       owner:   username,
@@ -79,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      demo:    false,
+      configured: true,
       url:     fileData.content?.html_url ?? `https://github.com/${username}/${repoName}`,
       commit:  fileData.commit.sha?.slice(0, 7),
       path:    filePath,
@@ -87,8 +92,12 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[github/push] error:', err);
-    return NextResponse.json({ error: err.message || 'GitHub push failed' }, { status: 500 });
+    console.error('[github/push] error:', err.message);
+    return NextResponse.json({
+      success: false,
+      configured: true,
+      message: `❌ GitHub push failed: ${err.message || 'API error'}. Please verify GITHUB_TOKEN has 'repo' permissions.`,
+    }, { status: err.status === 401 ? 401 : 500 });
   }
 }
 
@@ -100,7 +109,7 @@ function langExt(lang: string): string {
   return map[lang.toLowerCase()] ?? 'txt';
 }
 
-function addHeader(code: string, title: string, lang: string): string {
+function addHeader(code: string, title: string, lang: string, studentName?: string): string {
   const date = new Date().toISOString().split('T')[0];
   const comments: Record<string, [string, string]> = {
     cpp:    ['// ', ''],
@@ -112,5 +121,6 @@ function addHeader(code: string, title: string, lang: string): string {
     sql:    ['-- ', ''],
   };
   const [lc] = comments[lang.toLowerCase()] ?? ['// ', ''];
-  return `${lc}Problem: ${title}\n${lc}Language: ${lang}\n${lc}Date: ${date}\n${lc}Auto-pushed by PlacementHub 🚀\n\n${code}`;
+  const authorLine = studentName ? `${lc}Author: ${studentName}\n` : '';
+  return `${lc}Problem: ${title}\n${authorLine}${lc}Language: ${lang}\n${lc}Date: ${date}\n${lc}Auto-pushed by PlacementHub 🚀\n\n${code}`;
 }

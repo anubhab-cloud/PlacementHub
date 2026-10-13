@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 // Intelligent offline response generator tailored for placement & DSA prep
-function generateSmartFallback(message: string, stats: any): string {
+function generateSmartFallback(message: string, stats: any, studentName: string = 'Student'): string {
   const lower = message.toLowerCase();
 
   const easy = stats?.easy_solved ?? 90;
@@ -13,7 +14,7 @@ function generateSmartFallback(message: string, stats: any): string {
   const lang = stats?.primary_language ?? 'C++';
 
   if (lower.includes('study today') || lower.includes('what should i study') || lower.includes('today')) {
-    return `🎯 **Recommended Plan for Today:**\n\n• **Focus Topic:** Graph Algorithms (DFS & BFS) — your current error rate is higher here.\n• **Target Problems:**\n  1. LeetCode #200: *Number of Islands* (Medium)\n  2. LeetCode #547: *Number of Provinces* (Medium)\n  3. LeetCode #695: *Max Area of Island* (Medium)\n\n• **Strategy in ${lang}:** Write out adjacency matrix/list representation clearly before starting your DFS recursive call. Keep track of visited nodes!`;
+    return `🎯 **Recommended Plan for Today, ${studentName}:**\n\n• **Focus Topic:** Graph Algorithms (DFS & BFS) — your current error rate is higher here.\n• **Target Problems:**\n  1. LeetCode #200: *Number of Islands* (Medium)\n  2. LeetCode #547: *Number of Provinces* (Medium)\n  3. LeetCode #695: *Max Area of Island* (Medium)\n\n• **Strategy in ${lang}:** Write out adjacency matrix/list representation clearly before starting your DFS recursive call. Keep track of visited nodes!`;
   }
 
   if (lower.includes('bfs vs dfs') || lower.includes('graph bfs') || lower.includes('bfs') || lower.includes('dfs')) {
@@ -37,11 +38,19 @@ function generateSmartFallback(message: string, stats: any): string {
   }
 
   // Default response if prompt is general
-  return `🤖 **PlacementHub AI Assistant**\n\nGreat query regarding: "${message}"\n\nHere are tailored insights for your prep status:\n• **Current Stats:** ${total} problems solved (${easy} Easy, ${medium} Medium, ${hard} Hard).\n• **Streak:** ${streak} days active 🔥\n• **Recommended focus:** ${stats?.error_tags?.[0] || 'Graph DFS'} & ${stats?.error_tags?.[1] || 'Dynamic Programming'}.\n\n💡 **Actionable Advice:** Break your target into 2 Medium problems daily using ${lang}. Practice coding clean variable names and verifying constraints!`;
+  return `🤖 **PlacementHub AI Assistant**\n\nGreat query from ${studentName}: "${message}"\n\nHere are tailored insights for your prep status:\n• **Current Stats:** ${total} problems solved (${easy} Easy, ${medium} Medium, ${hard} Hard).\n• **Streak:** ${streak} days active 🔥\n• **Recommended focus:** ${stats?.error_tags?.[0] || 'Graph DFS'} & ${stats?.error_tags?.[1] || 'Dynamic Programming'}.\n\n💡 **Actionable Advice:** Break your target into 2 Medium problems daily using ${lang}. Practice coding clean variable names and verifying constraints!`;
 }
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getAuthenticatedUser(req);
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Sign in required to consult AI mentor' },
+        { status: 401 }
+      );
+    }
+
     const { message, stats } = await req.json();
 
     if (!message || typeof message !== 'string') {
@@ -56,7 +65,7 @@ export async function POST(req: NextRequest) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'];
 
-        const systemContext = `You are an expert coding interview coach for a student named Anubhab.
+        const systemContext = `You are an expert coding interview coach for a student named ${session.name}.
 Their profile:
 - Solved: ${stats?.easy_solved ?? 90} Easy, ${stats?.medium_solved ?? 110} Medium, ${stats?.hard_solved ?? 45} Hard
 - Streak: ${stats?.streak ?? 21} days
@@ -86,13 +95,12 @@ Give concise, actionable, personalized advice. Use bullet points for clarity. Ke
     }
 
     // Fallback to intelligent local response engine if API key is invalid or fails
-    const fallbackReply = generateSmartFallback(message, stats);
+    const fallbackReply = generateSmartFallback(message, stats, session?.name || 'Student');
     return NextResponse.json({ reply: fallbackReply, demo: true });
 
   } catch (err: any) {
     console.error('[ai/chat] error:', err);
-    const fallbackReply = generateSmartFallback('general prep', {});
-    return NextResponse.json({ reply: fallbackReply, demo: true });
+    return NextResponse.json({ error: err.message || 'AI chat request failed' }, { status: 500 });
   }
 }
 

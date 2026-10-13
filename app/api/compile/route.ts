@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { executeLocally } from '@/lib/compiler';
 
-// RapidAPI Judge0 Language IDs
+// Standard Judge0 CE Language IDs
 const JUDGE0_LANG_IDS: Record<string, number> = {
   cpp:        54, // C++ (GCC 9.2.0)
   c:          50, // C (GCC 9.2.0)
@@ -9,17 +10,8 @@ const JUDGE0_LANG_IDS: Record<string, number> = {
   py:         71,
   javascript: 63, // JavaScript (Node.js 12.14.0)
   js:         63,
-};
-
-// Wandbox Free Public API Compilers
-const WANDBOX_COMPILERS: Record<string, string> = {
-  cpp:        'gcc-head',
-  c:          'gcc-head',
-  python:     'cpython-3.10.13',
-  py:         'cpython-3.10.13',
-  java:       'openjdk-head',
-  javascript: 'nodejs-18.16.0',
-  js:         'nodejs-18.16.0',
+  typescript: 74, // TypeScript (3.7.4)
+  ts:         74,
 };
 
 export async function POST(req: NextRequest) {
@@ -34,15 +26,15 @@ export async function POST(req: NextRequest) {
     const judge0Key = process.env.JUDGE0_API_KEY;
     const judge0Host = process.env.JUDGE0_API_HOST || 'judge0-ce.p.rapidapi.com';
 
-    // ── 1. Attempt RapidAPI Judge0 Execution (If API key provided) ───────
-    if (judge0Key) {
+    // ── 1. If Judge0 is configured with a valid key, execute via Judge0 ────
+    if (judge0Key && judge0Key.trim().length > 0) {
       try {
         const langId = JUDGE0_LANG_IDS[langKey] || 54;
         const res = await fetch(`https://${judge0Host}/submissions?wait=true&fields=*`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-RapidAPI-Key': judge0Key,
+            'X-RapidAPI-Key': judge0Key.trim(),
             'X-RapidAPI-Host': judge0Host,
           },
           body: JSON.stringify({
@@ -59,73 +51,50 @@ export async function POST(req: NextRequest) {
               id:          data.status?.id ?? 3,
               description: data.status?.description ?? 'Accepted',
             },
-            stdout:         data.stdout || null,
-            stderr:         data.stderr || null,
-            compile_output: data.compile_output || null,
-            time:           data.time ? `${data.time}` : '0.05',
-            memory:         data.memory ?? 1024,
+            stdout:         data.stdout ?? null,
+            stderr:         data.stderr ?? null,
+            compile_output: data.compile_output ?? null,
+            time:           data.time ? `${data.time}` : null,
+            memory:         data.memory ? Math.round(data.memory) : null,
             engine:         'Judge0 Enterprise Engine',
-            demo:           false,
+            configured:     true,
           });
         }
       } catch (judge0Err: any) {
-        console.warn('[compile] Judge0 API failed, trying Wandbox fallback:', judge0Err.message);
+        console.warn('[compile] Judge0 failed, falling back to native engine:', judge0Err.message);
       }
     }
 
-    // ── 2. Attempt Wandbox Public Free API Execution ──────────────────────
-    const compiler = WANDBOX_COMPILERS[langKey] || 'gcc-head';
+    // ── 2. Native System Compiler Execution (MinGW g++, Python 3, Node V8, JDK) ──
     try {
-      const res = await fetch('https://wandbox.org/api/compile.json', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          compiler,
-          code,
-          stdin: stdin || '',
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const isSuccess = data.status === '0' || data.status === 0;
-        const stdout    = data.program_output || data.stdout || '';
-        const stderr    = data.program_error || data.compiler_error || '';
-
-        return NextResponse.json({
-          status: {
-            id:          isSuccess ? 3 : 6, // 3 = Accepted, 6 = Error
-            description: isSuccess ? 'Accepted' : 'Compilation / Runtime Error',
-          },
-          stdout:         stdout || (isSuccess ? 'Program executed successfully with no output.' : null),
-          stderr:         stderr || null,
-          compile_output: data.compiler_error || null,
-          time:           '0.04',
-          memory:         1024,
-          engine:         `Wandbox Free Engine (${compiler})`,
-          demo:           false,
-        });
-      }
-    } catch (wandboxErr: any) {
-      console.warn('[compile] Wandbox API failed:', wandboxErr.message);
+      const localResult = await executeLocally(code, language, stdin || '');
+      return NextResponse.json(localResult);
+    } catch (localErr: any) {
+      console.error('[compile] Local execution failed:', localErr);
     }
 
-    // ── 3. Fallback Sandbox Simulator ────────────────────────────────────
+    // ── 3. Unconfigured / Error fallback ──────────────────────────────────────
     return NextResponse.json({
-      status: { id: 3, description: 'Accepted (Simulated)' },
-      stdout: `[Sandbox Local Simulation]\nExecution completed for ${language.toUpperCase()}.\n\nOutput:\nSolution validated against input parameters.\n`,
-      stderr: null,
+      status: { id: 13, description: 'Compiler Unconfigured' },
+      stdout: null,
+      stderr: 'No execution engine available. Install g++/python locally or configure JUDGE0_API_KEY in .env.local.',
       compile_output: null,
-      time: '0.02',
-      memory: 512,
-      engine: 'Built-in Local Simulator',
-      demo: true,
-      message: 'Add JUDGE0_API_KEY to .env.local for full rapid execution.',
+      time: null,
+      memory: null,
+      engine: null,
+      configured: false,
     });
 
   } catch (err: any) {
     console.error('[compile] error:', err);
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      status: { id: 13, description: 'Execution Error' },
+      stdout: null,
+      stderr: err.message || 'Internal server error',
+      compile_output: null,
+      time: null,
+      memory: null,
+      configured: false,
+    }, { status: 500 });
   }
 }
-

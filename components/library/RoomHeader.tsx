@@ -47,7 +47,7 @@ export default function RoomHeader({
         </div>
 
         <p style={{ fontSize: '13px', color: 'var(--text-3)', marginTop: '4px' }}>
-          "{room.description || 'Study together without the noise.'}"
+          &ldquo;{room.description || 'Study together without the noise.'}&rdquo;
         </p>
 
         {/* Topic Distribution Pills */}

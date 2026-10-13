@@ -48,27 +48,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [modalMode, setModalMode] = useState<'login' | 'signup'>('login');
 
   useEffect(() => {
-    // Check localStorage for saved session
-    const savedUser = localStorage.getItem('placementhub_user');
-    if (savedUser) {
+    // Check server session first
+    const checkServerSession = async () => {
       try {
-        const parsed = JSON.parse(savedUser);
-        if (parsed && parsed.name && parsed.email) {
-          setUser(parsed);
-          setIsLoggedIn(true);
-          return;
+        const res = await fetch('/api/auth/session');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            const serverUser: User = {
+              name: data.user.name,
+              email: data.user.email,
+              avatar: data.user.avatar,
+              role: data.user.role || 'SDE Aspirant',
+              targetCompany: 'Google / Meta',
+            };
+            setUser(serverUser);
+            setIsLoggedIn(true);
+            localStorage.setItem('placementhub_user', JSON.stringify(serverUser));
+            return;
+          }
         }
-      } catch (e) {
+      } catch (err) {
+        console.warn('Could not verify server session:', err);
+      }
+
+      // Check localStorage for saved session fallback and sync with server
+      const savedUser = localStorage.getItem('placementhub_user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (parsed && parsed.name && parsed.email) {
+            setUser(parsed);
+            setIsLoggedIn(true);
+            // Establish server session for the restored user
+            fetch('/api/auth/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: parsed.email, name: parsed.name, role: parsed.role }),
+            }).catch(() => {});
+            return;
+          }
+        } catch (e) {
+          setUser(null);
+          setIsLoggedIn(false);
+        }
+      } else {
         setUser(null);
         setIsLoggedIn(false);
       }
-    } else {
-      setUser(null);
-      setIsLoggedIn(false);
-    }
+    };
+
+    checkServerSession();
   }, []);
 
-  const login = (email: string, name?: string) => {
+  const login = async (email: string, name?: string) => {
     const cleanEmail = (email || '').trim();
     let accounts: Record<string, { name: string; email: string }> = {};
     try {
@@ -105,6 +138,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoggedIn(true);
     localStorage.setItem('placementhub_user', JSON.stringify(newUser));
     setIsModalOpen(false);
+
+    // Call server endpoint to establish verified HttpOnly session cookie
+    try {
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, name: userName, role: newUser.role }),
+      });
+    } catch (err) {
+      console.error('Failed to set server auth session:', err);
+    }
   };
 
   const loginWithProvider = (provider: 'google' | 'github', customName?: string, customEmail?: string) => {
@@ -128,10 +172,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login(email || `${provider}-user@nexusprep.io`, name);
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     setIsLoggedIn(false);
     localStorage.removeItem('placementhub_user');
+
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (err) {
+      console.warn('Failed to clear server session:', err);
+    }
   };
 
   const openLoginModal = (mode: 'login' | 'signup' = 'login') => {

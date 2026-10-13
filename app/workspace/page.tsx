@@ -532,8 +532,54 @@ export default function WorkspacePage() {
   const [result, setResult] = useState<RunResult | null>(null);
   const [githubResult, setGithubResult] = useState<{ success: boolean; message: string; url?: string; path?: string } | null>(null);
   const [activeLeftTab, setActiveLeftTab] = useState<'statement' | 'bank' | 'leetcode-live' | 'study-plans' | 'sync'>('statement');
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [newPat, setNewPat] = useState('');
+  const [savingPat, setSavingPat] = useState(false);
+  const [tokenFeedback, setTokenFeedback] = useState<{ success: boolean; message: string } | null>(null);
 
   const editorRef = useRef<any>(null);
+
+  const downloadSolution = () => {
+    const currentCode = editorRef.current?.getValue() ?? code;
+    const ext = language.value === 'python' ? 'py' : language.value === 'java' ? 'java' : language.value === 'javascript' ? 'js' : 'cpp';
+    const filename = `${selectedProblem.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.${ext}`;
+    const blob = new Blob([currentCode], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSaveToken = async () => {
+    if (!newPat.trim()) return;
+    setSavingPat(true);
+    setTokenFeedback(null);
+    try {
+      const res = await fetch('/api/github/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: newPat.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTokenFeedback({ success: true, message: data.message });
+        setGithubResult(null);
+        setTimeout(() => {
+          setShowTokenModal(false);
+          setNewPat('');
+          setTokenFeedback(null);
+        }, 1800);
+      } else {
+        setTokenFeedback({ success: false, message: data.error || 'Failed to verify token' });
+      }
+    } catch (err: any) {
+      setTokenFeedback({ success: false, message: err.message });
+    } finally {
+      setSavingPat(false);
+    }
+  };
 
   const handleProblemSelect = (p: Problem) => {
     setSelectedProblem(p);
@@ -804,8 +850,18 @@ export default function WorkspacePage() {
 
               {githubResult && (
                 <div style={{ marginTop: '10px', padding: '10px 14px', borderRadius: 'var(--r-md)', background: githubResult.success ? 'rgba(0,229,160,0.06)' : 'rgba(255,77,109,0.06)', border: `1px solid ${githubResult.success ? 'rgba(0,229,160,0.25)' : 'rgba(255,77,109,0.25)'}`, fontSize: '12px', color: githubResult.success ? 'var(--green)' : 'var(--red)' }}>
-                  {githubResult.message}
+                  <div>{githubResult.message}</div>
                   {githubResult.url && <a href={githubResult.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', fontSize: '10px', color: 'var(--cyan)', marginTop: '4px' }}>🔗 View on GitHub →</a>}
+                  {!githubResult.success && (
+                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setShowTokenModal(true)} style={{ fontSize: '10px', padding: '4px 8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        🔑 Update GitHub Token
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={downloadSolution} style={{ fontSize: '10px', padding: '4px 8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        💾 Download Solution File
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1066,6 +1122,84 @@ export default function WorkspacePage() {
           </div>
         </div>
       </div>
+
+      {/* ── Modal: Configure GitHub Token ── */}
+      {showTokenModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
+        }}>
+          <div style={{
+            background: '#12131C', border: '1px solid rgba(124,58,237,0.3)',
+            borderRadius: '16px', maxWidth: '480px', width: '100%', padding: '24px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(124,58,237,0.15)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                🔑 Configure GitHub Access Token
+              </h3>
+              <button
+                onClick={() => { setShowTokenModal(false); setTokenFeedback(null); }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: '18px' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ fontSize: '12px', color: 'var(--text-2)', lineHeight: 1.6, marginBottom: '16px' }}>
+              To automatically push solutions to your GitHub account (<code>PlacementHub-DSA</code>), provide a GitHub Personal Access Token (classic or fine-grained) with <strong>repo</strong> permissions.
+            </p>
+
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-3)', display: 'block', marginBottom: '6px' }}>
+                GitHub Personal Access Token (PAT)
+              </label>
+              <input
+                type="password"
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                value={newPat}
+                onChange={e => setNewPat(e.target.value)}
+                style={{
+                  width: '100%', padding: '10px 12px', borderRadius: '8px',
+                  background: 'var(--black-3)', border: '1px solid rgba(255,255,255,0.12)',
+                  color: '#fff', fontSize: '12px', outline: 'none', fontFamily: 'monospace',
+                }}
+              />
+            </div>
+
+            {tokenFeedback && (
+              <div style={{
+                padding: '8px 12px', borderRadius: '6px', fontSize: '11px', marginBottom: '14px',
+                background: tokenFeedback.success ? 'rgba(0,229,160,0.1)' : 'rgba(255,77,109,0.1)',
+                border: `1px solid ${tokenFeedback.success ? 'rgba(0,229,160,0.3)' : 'rgba(255,77,109,0.3)'}`,
+                color: tokenFeedback.success ? 'var(--green)' : 'var(--red)',
+              }}>
+                {tokenFeedback.message}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => { setShowTokenModal(false); setTokenFeedback(null); }}
+                disabled={savingPat}
+                style={{ fontSize: '12px' }}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-violet"
+                onClick={handleSaveToken}
+                disabled={savingPat || !newPat.trim()}
+                style={{ fontSize: '12px' }}
+              >
+                {savingPat ? '⟳ Verifying...' : 'Verify & Save Token'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
