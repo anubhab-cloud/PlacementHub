@@ -3,6 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { ArrowRight, BookOpen, Building2, Code2, Github, Moon, Play, Sparkles, Sun } from 'lucide-react';
+import ReviewCarousel from './ReviewCarousel';
 
 const features = [
   {
@@ -47,11 +48,7 @@ const steps = [
   ['Show your proof', 'Share your portfolio and walk into interviews knowing exactly where you stand.'],
 ];
 
-const reviews = [
-  ['The readiness score told me what to fix before my Amazon OA. Super clear.', 'A', 'Arghadeep', 'NIT Agartala (NIT A)'],
-  ['Study rooms keep me consistent. Quiet, focused, and nobody bothers you.', 'D', 'Debjeet', 'VIT Bhopal (VIT B)'],
-  ['The AI coach pushed me on graphs until I stopped dreading them.', 'A', 'Atanu', 'Assam University'],
-];
+
 
 export default function LandingPage({ isDarkTheme, onToggleTheme }: { isDarkTheme: boolean; onToggleTheme: () => void }) {
   const { openLoginModal, login } = useAuth();
@@ -157,15 +154,7 @@ export default function LandingPage({ isDarkTheme, onToggleTheme }: { isDarkThem
             <span className="homepage-eyebrow">Reviews</span>
             <h2>Students who stopped guessing</h2>
           </div>
-          <div className="homepage-reviews">
-            {reviews.map(([quote, initial, name, role]) => (
-              <article className="homepage-review" key={name}>
-                <div className="homepage-stars" aria-label="5 out of 5 stars">★★★★★</div>
-                <p>“{quote}”</p>
-                <div className="homepage-review-author"><span>{initial}</span><div><b>{name}</b><small>{role}</small></div></div>
-              </article>
-            ))}
-          </div>
+          <ReviewCarousel />
         </section>
 
         <section className="homepage-wrap homepage-final-cta">
